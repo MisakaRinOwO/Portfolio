@@ -1,0 +1,63 @@
+---
+import SiteLayout from './SiteLayout.astro';
+
+interface Highlight {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  description?: string;
+  eyebrow: string;
+  highlights?: Highlight[];
+  image?: string;
+  summary: string;
+  title: string;
+}
+
+const { description, eyebrow, highlights = [], image, summary, title } = Astro.props;
+---
+
+<SiteLayout title={`${title} | AEON Space Agency`} description={description ?? summary}>
+  <main class="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <section
+      class={`relative isolate overflow-hidden border border-white/10 bg-white/[0.03] ${image ? 'min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]' : 'p-8 sm:p-10 lg:p-14'}`}
+    >
+      {image ? (
+        <>
+          <img src={image} alt={title} class="absolute inset-0 h-full w-full object-cover" />
+          <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,8,12,0.18),rgba(5,8,12,0.68)_48%,rgba(5,8,12,0.95))]" />
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(74,158,255,0.28),transparent_32%),radial-gradient(circle_at_78%_24%,rgba(240,192,112,0.16),transparent_24%)]" />
+        </>
+      ) : null}
+
+      <div class={`relative z-10 ${image ? 'flex min-h-[420px] items-end p-8 sm:min-h-[520px] sm:p-10 lg:min-h-[620px] lg:p-14' : ''}`}>
+        <div class="max-w-5xl">
+          <p class="font-display text-[11px] uppercase tracking-[0.28em] text-accent-blue">{eyebrow}</p>
+          <h1 class={`overlay-hero-title mt-5 max-w-4xl break-words font-display text-[2.85rem] leading-none font-bold sm:text-6xl lg:text-7xl ${image ? 'overlay-hero-title-image' : 'overlay-hero-title-plain'}`}>{title}</h1>
+          <p class={`overlay-hero-copy mt-7 max-w-3xl text-lg leading-8 sm:text-xl ${image ? 'overlay-hero-copy-image' : 'overlay-hero-copy-plain'}`}>{summary}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class={`mt-12 ${highlights.length ? 'grid gap-10 md:grid-cols-[minmax(0,1fr)_320px] md:items-start md:gap-8 lg:gap-10' : ''}`}>
+      <article class="markdown-prose max-w-4xl text-pretty md:order-1">
+        <slot />
+      </article>
+
+      {highlights.length ? (
+        <aside class="order-first border border-white/10 bg-white/[0.04] p-6 sm:p-7 md:order-2 md:sticky md:top-28 md:self-start lg:top-32">
+          <div class="font-display text-[10px] uppercase tracking-[0.24em] text-white/52">Core Signals</div>
+          <dl class="mt-6 space-y-5">
+            {highlights.map((item) => (
+              <div>
+                <dt class="font-display text-[10px] uppercase tracking-[0.22em] text-warm-gold">{item.label}</dt>
+                <dd class="mt-2 text-[1.02rem] leading-7 text-white/72">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </aside>
+      ) : null}
+    </section>
+  </main>
+</SiteLayout>

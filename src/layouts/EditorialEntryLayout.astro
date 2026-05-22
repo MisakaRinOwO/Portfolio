@@ -1,0 +1,72 @@
+---
+import SiteLayout from './SiteLayout.astro';
+
+interface DetailItem {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  backHref: string;
+  backLabel: string;
+  description?: string;
+  details: DetailItem[];
+  eyebrow: string;
+  image?: string;
+  summary: string;
+  title: string;
+}
+
+const {
+  backHref,
+  backLabel,
+  description,
+  details,
+  eyebrow,
+  image,
+  summary,
+  title,
+} = Astro.props;
+---
+
+<SiteLayout title={`${title} | AEON News`} description={description ?? summary}>
+  <main class="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <a
+      href={backHref}
+      class="inline-flex items-center gap-3 font-display text-[11px] uppercase tracking-[0.26em] text-white/56 transition-colors duration-300 hover:text-accent-blue"
+    >
+      <span aria-hidden="true">←</span>
+      {backLabel}
+    </a>
+
+    <section class="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div class="max-w-4xl">
+        <p class="font-display text-[11px] uppercase tracking-[0.28em] text-accent-blue">{eyebrow}</p>
+        <h1 class="mt-5 break-words font-display text-[2.85rem] leading-none font-bold text-white sm:text-6xl lg:text-7xl">{title}</h1>
+        <p class="mt-7 max-w-3xl text-lg leading-8 text-white/68 sm:text-xl">{summary}</p>
+      </div>
+
+      <aside class="border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+        <div class="font-display text-[10px] uppercase tracking-[0.24em] text-white/52">Article Data</div>
+        <dl class="mt-6 space-y-5">
+          {details.map((item) => (
+            <div>
+              <dt class="font-display text-[10px] uppercase tracking-[0.22em] text-warm-gold">{item.label}</dt>
+              <dd class="mt-2 text-[1.02rem] leading-7 text-white/72">{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </aside>
+    </section>
+
+    {image ? (
+      <div class="mt-12 overflow-hidden border border-white/10 bg-white/3">
+        <img src={image} alt={title} class="aspect-[16/8] w-full object-cover" />
+      </div>
+    ) : null}
+
+    <article class="markdown-prose mt-12 max-w-4xl text-pretty">
+      <slot />
+    </article>
+  </main>
+</SiteLayout>

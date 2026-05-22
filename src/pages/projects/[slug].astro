@@ -1,0 +1,217 @@
+---
+import { getCollection, render } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<SiteLayout title={`${d.title} | Peter Xie`} description={d.summary}>
+  <main class="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+
+    <!-- Back link -->
+    <a
+      href={`${base}/projects/`}
+      class="inline-flex items-center gap-3 font-display text-[13px] uppercase tracking-[0.2em] text-white/50 transition-colors duration-300 hover:text-accent-blue"
+    >
+      <span aria-hidden="true">←</span> All Projects
+    </a>
+
+    <!-- ── Hero ─────────────────────────────────────────────────────── -->
+    <section class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+      <div>
+        <!-- Tags -->
+        {d.tags.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {d.tags.map((tag) => (
+              <span class="rounded-full border border-accent-blue/28 px-3 py-1 font-display text-[11px] uppercase tracking-[0.16em] text-accent-blue">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <h1 class="mt-5 break-words font-display text-[2.6rem] font-bold leading-none text-white sm:text-5xl lg:text-6xl">
+          {d.title}
+        </h1>
+        <p class="mt-6 max-w-3xl text-[1.1rem] leading-8 text-white/65">{d.summary}</p>
+      </div>
+
+      <!-- Meta sidebar -->
+      <aside class="border border-white/10 bg-white/[0.03] p-6">
+        <p class="font-display text-[12px] uppercase tracking-[0.2em] text-white/40">Project Info</p>
+        <dl class="mt-5 space-y-5">
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Year</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">{d.year}</dd>
+          </div>
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Role</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">{d.role}</dd>
+          </div>
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Stack</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">{d.stack}</dd>
+          </div>
+        </dl>
+
+        <!-- Links -->
+        {(d.links.video || d.links.demo || d.links.github) && (
+          <div class="mt-8 flex flex-col gap-3">
+            {d.links.video && (
+              <a
+                href={d.links.video}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex min-h-10 items-center justify-center border border-accent-blue/40 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-accent-blue transition-colors duration-300 hover:bg-accent-blue hover:text-white"
+              >
+                Watch Demo
+              </a>
+            )}
+            {d.links.demo && (
+              <a
+                href={d.links.demo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
+              >
+                Download / Play
+              </a>
+            )}
+            {d.links.github && (
+              <a
+                href={d.links.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
+              >
+                GitHub
+              </a>
+            )}
+          </div>
+        )}
+      </aside>
+    </section>
+
+    <!-- ── Media ─────────────────────────────────────────────────────── -->
+    {(d.demoVideo || d.screenshots.length > 0) && (
+      <section class="mt-14">
+        {d.demoVideo && (
+          <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black">
+            <iframe
+              src={d.demoVideo}
+              title={`${d.title} demo video`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="h-full w-full"
+            ></iframe>
+          </div>
+        )}
+        {d.screenshots.length > 0 && (
+          <div class={`mt-6 grid gap-4 ${d.screenshots.length === 1 ? '' : 'sm:grid-cols-2'}`}>
+            {d.screenshots.map((src, i) => (
+              <img
+                src={src.startsWith('/') ? `${base}${src}` : src}
+                alt={`${d.title} screenshot ${i + 1}`}
+                class="w-full border border-white/8 object-cover"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    )}
+
+    <!-- ── Highlights ─────────────────────────────────────────────────── -->
+    {d.highlights.length > 0 && (
+      <section class="mt-14 border-l-2 border-accent-blue/30 pl-6">
+        <p class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">Key Highlights</p>
+        <ul class="mt-5 space-y-3">
+          {d.highlights.map((h) => (
+            <li class="flex gap-3 text-[1.06rem] leading-8 text-white/68">
+              <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-blue" aria-hidden="true"></span>
+              {h}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <!-- ── MDX body ─────────────────────────────────────────────────── -->
+    <article class="prose-portfolio mt-16 max-w-3xl">
+      <Content />
+    </article>
+
+  </main>
+</SiteLayout>
+
+<style>
+  .prose-portfolio :global(h2) {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .prose-portfolio :global(h3) {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(74, 158, 255, 0.85);
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-portfolio :global(p) {
+    font-size: 1.04rem;
+    line-height: 1.85;
+    color: rgba(255, 255, 255, 0.62);
+    margin-bottom: 1rem;
+  }
+  .prose-portfolio :global(ul) {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+  .prose-portfolio :global(li) {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.62);
+    padding-left: 1.25rem;
+    position: relative;
+    margin-bottom: 0.4rem;
+  }
+  .prose-portfolio :global(li)::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: rgba(74, 158, 255, 0.6);
+  }
+  .prose-portfolio :global(strong) {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+  }
+  .prose-portfolio :global(a) {
+    color: #4a9eff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-portfolio :global(a:hover) {
+    color: #fff;
+  }
+</style>

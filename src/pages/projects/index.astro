@@ -1,0 +1,138 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getProjectEntries } from '../../lib/content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const projects = await getProjectEntries();
+const featured = projects.find((p) => p.data.featured);
+const others = projects.filter((p) => !p.data.featured);
+---
+
+<SiteLayout
+  title="Projects | Peter Xie"
+  description="Game systems and programming projects by Peter Xie — UE5, Unity, Godot, and more."
+>
+  <main class="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+
+    <header class="max-w-2xl">
+      <p class="font-display text-[13px] uppercase tracking-[0.22em] text-accent-blue">Portfolio</p>
+      <h1 class="mt-4 font-display text-[2.6rem] font-bold leading-none text-white sm:text-5xl">Projects</h1>
+      <p class="mt-5 text-[1.04rem] leading-8 text-white/60">
+        A selection of game systems, prototypes, and engine work. Click any project to read the full breakdown.
+      </p>
+    </header>
+
+    <!-- ── Featured ─────────────────────────────────────────────────── -->
+    {featured && (
+      <section class="mt-16" aria-labelledby="featured-heading">
+        <h2 id="featured-heading" class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">
+          Featured Project
+        </h2>
+
+        <a
+          href={`${base}/projects/${featured.id}/`}
+          class="group mt-6 flex flex-col gap-8 border border-white/10 bg-white/[0.03] p-8 transition-colors duration-300 hover:border-accent-blue/40 sm:p-10 lg:flex-row lg:items-start"
+        >
+          <!-- Cover image -->
+          <div class="aspect-video w-full overflow-hidden border border-white/8 lg:w-[480px] lg:shrink-0">
+            <img
+              src={featured.data.coverImage.startsWith('/') ? `${base}${featured.data.coverImage}` : featured.data.coverImage}
+              alt={`${featured.data.title} cover`}
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              loading="lazy"
+            />
+          </div>
+
+          <!-- Text -->
+          <div class="flex flex-col">
+            {featured.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                {featured.data.tags.map((tag) => (
+                  <span class="rounded-full border border-accent-blue/25 px-3 py-1 font-display text-[11px] uppercase tracking-[0.18em] text-accent-blue">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <h3 class="mt-4 font-display text-[2rem] font-bold leading-none text-white sm:text-[2.4rem]">
+              {featured.data.title}
+            </h3>
+            <p class="mt-5 text-[1.04rem] leading-8 text-white/64">{featured.data.summary}</p>
+            {featured.data.keyFeatures && featured.data.keyFeatures.length > 0 && (
+              <div class="mt-4 flex flex-wrap gap-2">
+                {featured.data.keyFeatures.map((f) => (
+                  <span class="inline-flex items-center gap-1.5 border border-accent-blue/50 bg-accent-blue/10 px-3 py-1 font-display text-[11px] uppercase tracking-[0.16em] text-accent-blue">
+                    <span class="h-1 w-1 rounded-full bg-accent-blue" aria-hidden="true"></span>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
+            <dl class="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+              <div>
+                <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-white/38">Year</dt>
+                <dd class="mt-1.5 text-[0.95rem] text-white/70">{featured.data.year}</dd>
+              </div>
+              <div>
+                <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-white/38">Role</dt>
+                <dd class="mt-1.5 text-[0.95rem] text-white/70">{featured.data.role}</dd>
+              </div>
+              <div>
+                <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-white/38">Stack</dt>
+                <dd class="mt-1.5 text-[0.95rem] text-white/70">{featured.data.stack}</dd>
+              </div>
+            </dl>
+            <span class="mt-8 inline-flex items-center gap-2 font-display text-[13px] uppercase tracking-[0.18em] text-white/50 transition-colors duration-300 group-hover:text-accent-blue">
+              Full breakdown <span aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+      </section>
+    )}
+
+    <!-- ── Other Projects ─────────────────────────────────────────────── -->
+    {others.length > 0 && (
+      <section class="mt-20" aria-labelledby="other-heading">
+        <h2 id="other-heading" class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">
+          Other Projects
+        </h2>
+
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {others.map((project) => (
+            <a
+              href={`${base}/projects/${project.id}/`}
+              class="group flex h-full flex-col border border-white/8 bg-white/[0.02] p-7 transition-colors duration-300 hover:border-accent-blue/35"
+            >
+              <!-- Cover -->
+              <div class="aspect-video w-full overflow-hidden border border-white/6">
+                <img
+                  src={project.data.coverImage.startsWith('/') ? `${base}${project.data.coverImage}` : project.data.coverImage}
+                  alt={`${project.data.title} cover`}
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Tags -->
+              <div class="mt-5 flex flex-wrap gap-1.5">
+                {project.data.tags.slice(0, 3).map((tag) => (
+                  <span class="rounded-full border border-white/12 px-2.5 py-1 font-display text-[11px] uppercase tracking-[0.14em] text-white/45">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <h3 class="mt-4 font-display text-[1.4rem] font-bold text-white">{project.data.title}</h3>
+              <p class="mt-3 flex-1 text-[1.02rem] leading-7 text-white/58">{project.data.summary}</p>
+
+              <span class="mt-6 inline-flex items-center gap-2 font-display text-[12px] uppercase tracking-[0.18em] text-white/40 transition-colors duration-300 group-hover:text-accent-blue">
+                Read more <span aria-hidden="true">→</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+  </main>
+</SiteLayout>

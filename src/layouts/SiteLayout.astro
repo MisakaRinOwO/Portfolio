@@ -1,0 +1,175 @@
+---
+import FooterSection from '../components/FooterSection';
+import { footerDirectory, footerMeta, footerPolicies, siteNav } from '../data/site';
+import '../styles/global.css';
+
+interface Props {
+  description?: string;
+  title: string;
+}
+
+const { description = 'Gameplay / Systems Engineer — grid systems, modular architecture, UE5, Unity.', title } = Astro.props;
+const currentPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+
+function normalizePath(path: string) {
+  if (path === '/') {
+    return '/';
+  }
+
+  return path.endsWith('/') ? path : `${path}/`;
+}
+
+function isActivePath(path: string) {
+  const normalizedPath = normalizePath(path);
+
+  if (normalizedPath === '/') {
+    return currentPath === '/';
+  }
+
+  return currentPath === normalizedPath || currentPath.startsWith(normalizedPath);
+}
+---
+
+<html lang="en" class="bg-page-bg">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Space+Grotesk:wght@300;400;500;700&display=swap"
+    />
+    <script is:inline>
+      document.documentElement.dataset.theme = 'dark';
+      document.documentElement.classList.add('dark');
+    </script>
+    <title>{title}</title>
+  </head>
+  <body class="bg-page-bg font-body text-white antialiased">
+    <div class="site-shell min-h-screen overflow-x-clip">
+      <header
+        data-site-header
+        data-scroll-state="top"
+        class="sticky top-0 z-50 border-b border-white/8 bg-page-bg/72 shadow-[0_18px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform supports-[backdrop-filter]:bg-page-bg/58 data-[scroll-state=hidden]:-translate-y-full"
+      >
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:px-8 lg:px-12">
+          <div class="flex items-center justify-between gap-4 sm:gap-6">
+            <a href="/" class="inline-flex items-center transition-opacity duration-300 hover:opacity-80">
+              <span class="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-white">Peter Xie</span>
+            </a>
+            <div class="flex items-center gap-2 sm:gap-4">
+              <details class="group relative flex items-center md:hidden">
+                <summary
+                  class="relative inline-flex h-10 w-10 shrink-0 cursor-pointer list-none items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-sm transition-colors duration-300 hover:border-accent-blue/45 hover:text-accent-blue [&::-webkit-details-marker]:hidden"
+                  aria-label="Menu"
+                >
+                  <span class="sr-only">Menu</span>
+                  <span class="flex flex-col items-center justify-center gap-1 group-open:hidden" aria-hidden="true">
+                    <span class="block h-px w-4 bg-current"></span>
+                    <span class="block h-px w-4 bg-current"></span>
+                    <span class="block h-px w-4 bg-current"></span>
+                  </span>
+                  <span class="relative hidden h-4 w-4 items-center justify-center group-open:flex" aria-hidden="true">
+                    <span class="absolute block h-px w-4 rotate-45 bg-current"></span>
+                    <span class="absolute block h-px w-4 -rotate-45 bg-current"></span>
+                  </span>
+                </summary>
+                <nav class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-3rem))] border border-white/10 bg-page-bg/94 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+                  <div class="grid gap-3 font-display text-[13px] uppercase tracking-[0.2em]">
+                    {siteNav.map((item) => {
+                      const isActive = isActivePath(item.href);
+
+                      return (
+                        <a
+                          href={item.href}
+                          aria-current={isActive ? 'page' : undefined}
+                          class:list={[
+                            'py-1 transition-colors duration-300',
+                            isActive ? 'text-accent-blue' : 'text-white/62 hover:text-accent-blue',
+                          ]}
+                        >
+                          {item.label}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </nav>
+              </details>
+            </div>
+          </div>
+          <nav class="hidden flex-wrap items-center gap-x-4 gap-y-3 font-display text-xs uppercase tracking-[0.2em] sm:gap-x-6 sm:text-[13px] md:flex">
+            {siteNav.map((item) => {
+              const isActive = isActivePath(item.href);
+
+              return (
+                <a
+                  href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  class:list={[
+                    'transition-colors duration-300',
+                    isActive ? 'text-accent-blue' : 'text-white/56 hover:text-accent-blue',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </nav>
+        </div>
+      </header>
+      <script is:inline>
+        (() => {
+          const header = document.querySelector('[data-site-header]');
+          if (!header) return;
+
+          let lastScrollY = window.scrollY;
+          let ticking = false;
+          const revealDelta = 8;
+          const topOffset = 24;
+
+          const updateHeader = () => {
+            const currentScrollY = window.scrollY;
+            const delta = currentScrollY - lastScrollY;
+
+            if (currentScrollY <= topOffset) {
+              header.setAttribute('data-scroll-state', 'top');
+            } else if (delta > revealDelta) {
+              header.setAttribute('data-scroll-state', 'hidden');
+            } else if (delta < -revealDelta) {
+              header.setAttribute('data-scroll-state', 'visible');
+            }
+
+            lastScrollY = currentScrollY;
+            ticking = false;
+          };
+
+          window.addEventListener(
+            'scroll',
+            () => {
+              if (!ticking) {
+                window.requestAnimationFrame(updateHeader);
+                ticking = true;
+              }
+            },
+            { passive: true },
+          );
+        })();
+      </script>
+      <slot />
+      <FooterSection
+        client:visible
+        directory={footerDirectory}
+        meta={footerMeta}
+        policies={footerPolicies}
+      />
+    </div>
+  </body>
+</html>
