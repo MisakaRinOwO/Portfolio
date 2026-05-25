@@ -12,8 +12,9 @@ export async function getStaticPaths() {
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const d = entry.data;
+const tocHeadings = headings.filter((h) => h.depth === 2);
 ---
 
 <SiteLayout title={`${d.title} | Peter Xie`} description={d.summary}>
@@ -27,85 +28,96 @@ const d = entry.data;
       <span aria-hidden="true">←</span> All Projects
     </a>
 
-    <!-- ── Hero ─────────────────────────────────────────────────────── -->
-    <section class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
-      <div>
-        <!-- Tags -->
-        {d.tags.length > 0 && (
-          <div class="flex flex-wrap gap-2">
-            {d.tags.map((tag) => (
-              <span class="rounded-full border border-accent-blue/28 px-3 py-1 font-display text-[11px] uppercase tracking-[0.16em] text-accent-blue">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-        <h1 class="mt-5 break-words font-display text-[2.6rem] font-bold leading-none text-white sm:text-5xl lg:text-6xl">
-          {d.title}
-        </h1>
-        <p class="mt-6 max-w-3xl text-[1.1rem] leading-8 text-white/65">{d.summary}</p>
+    <!-- ════════════════════════════════════════════════════════════════
+         PART 1 — HERO
+         Title · Summary · Project Info · Media
+    ═══════════════════════════════════════════════════════════════════ -->
+    <section class="mt-10" aria-label="Hero">
+
+      <!-- Title + Sidebar -->
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+        <div>
+          <!-- Tags -->
+          {d.tags.length > 0 && (
+            <div class="flex flex-wrap gap-2">
+              {d.tags.map((tag) => (
+                <span class="rounded-full border border-accent-blue/28 px-3 py-1 font-display text-[11px] uppercase tracking-[0.16em] text-accent-blue">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <h1 class="mt-5 break-words font-display text-[2.6rem] font-bold leading-none text-white sm:text-5xl lg:text-6xl">
+            {d.title}
+          </h1>
+          <p class="mt-6 max-w-3xl text-[1.1rem] leading-8 text-white/65">{d.summary}</p>
+        </div>
+
+        <!-- Meta sidebar -->
+        <aside class="border border-white/10 bg-white/[0.03] p-6">
+          <p class="font-display text-[12px] uppercase tracking-[0.2em] text-white/40">Project Info</p>
+          <dl class="mt-5 space-y-5">
+            <div>
+              <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Year</dt>
+              <dd class="mt-2 text-[1.02rem] text-white/72">{d.year}</dd>
+            </div>
+            <div>
+              <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Role</dt>
+              <dd class="mt-2 text-[1.02rem] text-white/72">{d.role}</dd>
+            </div>
+            <div>
+              <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Stack</dt>
+              <dd class="mt-2 text-[1.02rem] text-white/72">{d.stack}</dd>
+            </div>
+            {d.focus && (
+              <div>
+                <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Focus</dt>
+                <dd class="mt-2 text-[1.02rem] text-white/72">{d.focus}</dd>
+              </div>
+            )}
+          </dl>
+
+          <!-- Links -->
+          {(d.links.video || d.links.demo || d.links.github) && (
+            <div class="mt-8 flex flex-col gap-3">
+              {d.links.video && (
+                <a
+                  href={d.links.video}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-10 items-center justify-center border border-accent-blue/40 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-accent-blue transition-colors duration-300 hover:bg-accent-blue hover:text-white"
+                >
+                  Watch Demo
+                </a>
+              )}
+              {d.links.demo && (
+                <a
+                  href={d.links.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
+                >
+                  Download / Play
+                </a>
+              )}
+              {d.links.github && (
+                <a
+                  href={d.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
+                >
+                  GitHub
+                </a>
+              )}
+            </div>
+          )}
+        </aside>
       </div>
 
-      <!-- Meta sidebar -->
-      <aside class="border border-white/10 bg-white/[0.03] p-6">
-        <p class="font-display text-[12px] uppercase tracking-[0.2em] text-white/40">Project Info</p>
-        <dl class="mt-5 space-y-5">
-          <div>
-            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Year</dt>
-            <dd class="mt-2 text-[1.02rem] text-white/72">{d.year}</dd>
-          </div>
-          <div>
-            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Role</dt>
-            <dd class="mt-2 text-[1.02rem] text-white/72">{d.role}</dd>
-          </div>
-          <div>
-            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Stack</dt>
-            <dd class="mt-2 text-[1.02rem] text-white/72">{d.stack}</dd>
-          </div>
-        </dl>
-
-        <!-- Links -->
-        {(d.links.video || d.links.demo || d.links.github) && (
-          <div class="mt-8 flex flex-col gap-3">
-            {d.links.video && (
-              <a
-                href={d.links.video}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex min-h-10 items-center justify-center border border-accent-blue/40 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-accent-blue transition-colors duration-300 hover:bg-accent-blue hover:text-white"
-              >
-                Watch Demo
-              </a>
-            )}
-            {d.links.demo && (
-              <a
-                href={d.links.demo}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
-              >
-                Download / Play
-              </a>
-            )}
-            {d.links.github && (
-              <a
-                href={d.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex min-h-10 items-center justify-center border border-white/20 px-5 font-display text-[12px] uppercase tracking-[0.18em] text-white/60 transition-colors duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
-              >
-                GitHub
-              </a>
-            )}
-          </div>
-        )}
-      </aside>
-    </section>
-
-    <!-- ── Media ─────────────────────────────────────────────────────── -->
-    {(d.demoVideo || d.screenshots.length > 0) && (
-      <section class="mt-14">
-        {d.demoVideo && (
+      <!-- Hero Media -->
+      <div class="mt-10">
+        {d.demoVideo ? (
           <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black">
             <iframe
               src={d.demoVideo}
@@ -115,9 +127,8 @@ const d = entry.data;
               class="h-full w-full"
             ></iframe>
           </div>
-        )}
-        {d.screenshots.length > 0 && (
-          <div class={`mt-6 grid gap-4 ${d.screenshots.length === 1 ? '' : 'sm:grid-cols-2'}`}>
+        ) : d.screenshots.length > 0 ? (
+          <div class={`grid gap-4 ${d.screenshots.length === 1 ? '' : 'sm:grid-cols-2'}`}>
             {d.screenshots.map((src, i) => (
               <img
                 src={src.startsWith('/') ? `${base}${src}` : src}
@@ -127,29 +138,100 @@ const d = entry.data;
               />
             ))}
           </div>
+        ) : (
+          <div class="flex aspect-video w-full flex-col items-center justify-center border border-dashed border-white/14 bg-white/[0.02]">
+            <svg class="h-8 w-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9A2.25 2.25 0 004.5 18.75z" />
+            </svg>
+            <p class="mt-3 font-display text-[11px] uppercase tracking-[0.2em] text-white/22">Media Placeholder</p>
+          </div>
         )}
-      </section>
-    )}
+      </div>
 
-    <!-- ── Highlights ─────────────────────────────────────────────────── -->
-    {d.highlights.length > 0 && (
-      <section class="mt-14 border-l-2 border-accent-blue/30 pl-6">
-        <p class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">Key Highlights</p>
-        <ul class="mt-5 space-y-3">
-          {d.highlights.map((h) => (
-            <li class="flex gap-3 text-[1.06rem] leading-8 text-white/68">
-              <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-blue" aria-hidden="true"></span>
-              {h}
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
+    </section>
 
-    <!-- ── MDX body ─────────────────────────────────────────────────── -->
-    <article class="prose-portfolio mt-16 max-w-3xl">
-      <Content />
-    </article>
+    <!-- ════════════════════════════════════════════════════════════════
+         PARTS 2 + 3 — CONTENT + TOC
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div class="mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:items-start lg:gap-10">
+
+      <!-- Main content column -->
+      <div>
+
+        <!-- PART 2 — PROTOTYPE FOCUS -->
+        {d.focusCards && d.focusCards.length > 0 ? (
+          <section aria-label="Prototype Focus">
+            <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">What This Prototype Focused On</h2>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              {d.focusCards.map((card) => (
+                <div class="border border-white/10 bg-white/[0.02] p-5">
+                  <h3 class="font-display text-[12px] font-bold uppercase tracking-[0.15em] text-accent-blue">{card.title}</h3>
+                  <p class="mt-2 text-[0.93rem] leading-6 text-white/60">{card.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : d.highlights.length > 0 && (
+          <section class="border-l-2 border-accent-blue/30 pl-6" aria-label="Key Highlights">
+            <p class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">Key Highlights</p>
+            <ul class="mt-5 space-y-3">
+              {d.highlights.map((h) => (
+                <li class="flex gap-3 text-[1.06rem] leading-8 text-white/68">
+                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-blue" aria-hidden="true"></span>
+                  {h}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <!-- PART 3 — FULL BREAKDOWN -->
+        <article class="prose-portfolio mt-16" aria-label="Full Breakdown">
+          <Content />
+        </article>
+
+      </div>
+
+      <!-- TOC sidebar -->
+      {tocHeadings.length > 0 && (
+        <aside
+          id="toc-aside"
+          class="mt-0 lg:sticky lg:top-28"
+          aria-label="Page contents"
+        >
+          <!-- Header / toggle button -->
+          <button
+            id="toc-toggle"
+            class="flex w-full items-center justify-between border border-white/10 bg-white/[0.02] px-4 py-3 text-left transition-colors hover:border-accent-blue/30"
+            aria-expanded="true"
+            aria-controls="toc-list"
+          >
+            <span class="font-display text-[10px] uppercase tracking-[0.2em] text-white/40">On This Page</span>
+            <svg id="toc-chevron" class="h-3.5 w-3.5 text-white/30 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- TOC list -->
+          <nav id="toc-list" class="border border-t-0 border-white/10 bg-white/[0.015] px-4 py-3">
+            <ul class="space-y-0.5">
+              {tocHeadings.map((h) => (
+                <li>
+                  <a
+                    href={`#${h.slug}`}
+                    class="toc-link block py-1.5 font-display text-[10.5px] uppercase tracking-[0.14em] text-white/40 transition-colors duration-150 hover:text-accent-blue"
+                    data-slug={h.slug}
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      )}
+
+    </div>
 
   </main>
 </SiteLayout>
@@ -214,4 +296,147 @@ const d = entry.data;
   .prose-portfolio :global(a:hover) {
     color: #fff;
   }
+  .prose-portfolio :global(ol) {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+    counter-reset: ol-counter;
+  }
+  .prose-portfolio :global(ol > li) {
+    counter-increment: ol-counter;
+    padding-left: 2rem;
+  }
+  .prose-portfolio :global(ol > li)::before {
+    content: counter(ol-counter) '.';
+    position: absolute;
+    left: 0;
+    color: rgba(74, 158, 255, 0.7);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+  }
+  .prose-portfolio :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+  .prose-portfolio :global(th) {
+    font-family: var(--font-display);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+  }
+  .prose-portfolio :global(td) {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    vertical-align: top;
+  }
+  .prose-portfolio :global(tr:last-child td) {
+    border-bottom: none;
+  }
+  .prose-portfolio :global(.media-placeholder) {
+    margin: 1.5rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.015);
+    gap: 0.5rem;
+  }
+  .prose-portfolio :global(.media-placeholder::before) {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 4px;
+    background: rgba(74,158,255,0.06);
+  }
+  .prose-portfolio :global(.media-placeholder::after) {
+    content: attr(data-label);
+    font-family: var(--font-display);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.2);
+    text-align: center;
+    padding: 0 1rem;
+  }
+  .prose-portfolio :global(hr) {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin: 2.5rem 0;
+  }
+  /* TOC active link */
+  #toc-list a.toc-active {
+    color: #4a9eff;
+  }
+  /* TOC collapsed state */
+  #toc-list.toc-collapsed {
+    display: none;
+  }
+  /* Rotate chevron when collapsed */
+  #toc-chevron.toc-chevron-collapsed {
+    transform: rotate(-90deg);
+  }
 </style>
+
+<script>
+  // ── TOC: collapse / expand ──────────────────────────────────────────
+  const toggle = document.getElementById('toc-toggle');
+  const list   = document.getElementById('toc-list');
+  const chevron = document.getElementById('toc-chevron');
+
+  if (toggle && list && chevron) {
+    // Mobile default: collapsed
+    const isDesktop = () => window.innerWidth >= 1024;
+    if (!isDesktop()) {
+      list.classList.add('toc-collapsed');
+      chevron.classList.add('toc-chevron-collapsed');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', () => {
+      const collapsed = list.classList.toggle('toc-collapsed');
+      chevron.classList.toggle('toc-chevron-collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+    });
+  }
+
+  // ── TOC: scroll spy ────────────────────────────────────────────────
+  const tocLinks = document.querySelectorAll<HTMLAnchorElement>('a.toc-link');
+  if (tocLinks.length > 0) {
+    const headingEls = Array.from(tocLinks)
+      .map((a) => document.getElementById(a.dataset.slug ?? ''))
+      .filter(Boolean) as HTMLElement[];
+
+    const setActive = (id: string) => {
+      tocLinks.forEach((a) => {
+        a.classList.toggle('toc-active', a.dataset.slug === id);
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          // Pick the topmost visible heading
+          const topmost = visible.reduce((a, b) =>
+            a.boundingClientRect.top < b.boundingClientRect.top ? a : b
+          );
+          setActive((topmost.target as HTMLElement).id);
+        }
+      },
+      { rootMargin: '0px 0px -60% 0px', threshold: 0 }
+    );
+
+    headingEls.forEach((el) => observer.observe(el));
+  }
+</script>

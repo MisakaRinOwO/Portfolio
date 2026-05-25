@@ -81,6 +81,12 @@ const others = projects.filter((p) => !p.data.featured);
                 <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-white/38">Stack</dt>
                 <dd class="mt-1.5 text-[0.95rem] text-white/70">{featured.data.stack}</dd>
               </div>
+              {featured.data.focus && (
+                <div class="col-span-2 sm:col-span-3">
+                  <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-white/38">Focus</dt>
+                  <dd class="mt-1.5 text-[0.95rem] text-white/70">{featured.data.focus}</dd>
+                </div>
+              )}
             </dl>
             <span class="mt-8 inline-flex items-center gap-2 font-display text-[13px] uppercase tracking-[0.18em] text-white/50 transition-colors duration-300 group-hover:text-accent-blue">
               Full breakdown <span aria-hidden="true">→</span>

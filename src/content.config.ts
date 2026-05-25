@@ -25,6 +25,8 @@ const projects = defineCollection({
       .default({}),
     order: z.number().default(99),
     keyFeatures: z.array(z.string()).optional(),
+    focus: z.string().optional(),
+    focusCards: z.array(z.object({ title: z.string(), description: z.string() })).optional(),
   }),
 });
 
