@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Void Architect Simulation Tick Flow</title>
+  <desc id="desc">Flowchart of tick-based combat simulation for player and enemy damage resolution.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8cc2ff" />
+    </marker>
+    <style>
+      .bg { fill: #0f172a; }
+      .title { fill: #e2e8f0; font-family: Segoe UI, Arial, sans-serif; font-size: 36px; font-weight: 700; }
+      .subtitle { fill: #94a3b8; font-family: Segoe UI, Arial, sans-serif; font-size: 19px; }
+      .box { fill: #111827; stroke: #334155; stroke-width: 2; rx: 16; }
+      .decision { fill: #1f2937; stroke: #334155; stroke-width: 2; }
+      .end { fill: #0b1220; stroke: #3b82f6; stroke-width: 2.5; rx: 20; }
+      .label { fill: #e5e7eb; font-family: Segoe UI, Arial, sans-serif; font-size: 24px; font-weight: 600; }
+      .small { fill: #cbd5e1; font-family: Segoe UI, Arial, sans-serif; font-size: 16px; }
+      .edge { stroke: #8cc2ff; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .yesno { fill: #93c5fd; font-family: Segoe UI, Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .label-bg { fill: rgba(15, 23, 42, 0.68); stroke: rgba(147, 197, 253, 0.45); stroke-width: 1.5; rx: 8; }
+      .diamond-label { fill: #e5e7eb; font-family: Segoe UI, Arial, sans-serif; font-size: 21px; font-weight: 600; }
+      .diamond-sub { fill: #cbd5e1; font-family: Segoe UI, Arial, sans-serif; font-size: 14px; }
+      .note { fill: #94a3b8; font-family: Segoe UI, Arial, sans-serif; font-size: 16px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900" />
+  <text class="title" x="800" y="58" text-anchor="middle">Simulation Tick Pipeline</text>
+  <text class="subtitle" x="800" y="86" text-anchor="middle">Tick Start -> Player Damage -> Enemy Damage -> End Check</text>
+
+  <rect class="box" x="60" y="150" width="250" height="80" />
+  <text class="label" x="185" y="198" text-anchor="middle">Tick Start</text>
+
+  <rect class="box" x="360" y="120" width="470" height="300" />
+  <text class="label" x="595" y="160" text-anchor="middle">
+    <tspan x="595" dy="0">Player Damage Phase</tspan>
+    <tspan x="595" dy="30">(per weapon)</tspan>
+  </text>
+  <text class="small" x="390" y="230">1. Read weapon reload</text>
+  <text class="small" x="390" y="260">
+    <tspan x="390" dy="0">2. If reload == 0: read enemy agility,</tspan>
+    <tspan x="390" dy="24">   compute hit chance</tspan>
+  </text>
+  <text class="small" x="390" y="316">3. Apply damage</text>
+  <text class="small" x="390" y="346">
+    <tspan x="390" dy="0">4. If target HP &lt;= 0:</tspan>
+    <tspan x="390" dy="24">   break current target loop</tspan>
+  </text>
+
+  <polygon class="decision" points="595,460 715,540 595,620 475,540" />
+  <text class="diamond-label" x="595" y="536" text-anchor="middle">Enemy HP &lt;= 0?</text>
+  <text class="diamond-sub" x="595" y="559" text-anchor="middle">current target</text>
+
+  <rect class="box" x="900" y="120" width="470" height="260" />
+  <text class="label" x="1135" y="160" text-anchor="middle">
+    <tspan x="1135" dy="0">Enemy Damage Phase</tspan>
+    <tspan x="1135" dy="30">(single attacker)</tspan>
+  </text>
+  <text class="small" x="930" y="230">1. Read enemy reload</text>
+  <text class="small" x="930" y="260">
+    <tspan x="930" dy="0">2. If reload == 0: read player agility,</tspan>
+    <tspan x="930" dy="24">   compute hit chance</tspan>
+  </text>
+  <text class="small" x="930" y="316">3. Apply damage</text>
+  <text class="small" x="930" y="346">4. If player HP &lt;= 0: break</text>
+
+  <polygon class="decision" points="1135,460 1255,540 1135,620 1015,540" />
+  <text class="diamond-label" x="1135" y="520" text-anchor="middle">End Sim?</text>
+  <text class="diamond-sub" x="1135" y="542" text-anchor="middle">
+    <tspan x="1135" dy="0">Player HP &lt;= 0</tspan>
+    <tspan x="1135" dy="19">or all enemies defeated</tspan>
+  </text>
+
+  <rect class="end" x="1310" y="495" width="240" height="90" />
+  <text class="label" x="1430" y="548" text-anchor="middle">End Simulation</text>
+
+  <path class="edge" d="M310 190 L360 190" />
+  <path class="edge" d="M1135 380 L1135 460" />
+  <path class="edge" d="M1255 540 L1310 540" />
+
+  <path class="edge" d="M595 420 L595 460" />
+  <path class="edge" d="M715 540 L860 540 L860 250 L900 250" />
+  <rect class="label-bg" x="738" y="496" width="164" height="32" />
+  <text class="yesno" x="820" y="519" text-anchor="middle">Yes / Continue</text>
+
+  <path class="edge" d="M475 540 L330 540 L330 270 L360 270" />
+  <rect class="label-bg" x="247" y="436" width="166" height="32" />
+  <text class="yesno" x="330" y="459" text-anchor="middle">No / Next weapon</text>
+
+  <path class="edge" d="M1015 540 L860 540 L860 700 L185 700 L185 230" />
+  <rect class="label-bg" x="682" y="661" width="156" height="32" />
+  <text class="yesno" x="760" y="684" text-anchor="middle">No / Next Tick</text>
+
+  <text class="note" x="800" y="835" text-anchor="middle">Tick-driven combat makes outcomes traceable and reproducible for balancing.</text>
+</svg>
