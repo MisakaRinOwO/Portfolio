@@ -1,6 +1,7 @@
 ---
 title: "UE5 Top-Down RPG Capstone"
 featured: false
+draft: true
 tags: ["UE5", "C++", "Blueprint", "RPG", "Combat"]
 role: "Solo"
 stack: "Unreal Engine 5, C++, Blueprint, GAS"

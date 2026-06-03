@@ -57,6 +57,11 @@ const others = projects.filter((p) => !p.data.featured);
             <h3 class="mt-4 font-display text-[2rem] font-bold leading-none text-white sm:text-[2.4rem]">
               {featured.data.title}
             </h3>
+            {featured.data.draft && (
+              <span class="mt-3 inline-flex items-center gap-1.5 border border-yellow-400/35 bg-yellow-400/[0.07] px-3 py-1 font-display text-[10px] uppercase tracking-[0.2em] text-yellow-300">
+                Under Construction
+              </span>
+            )}
             <p class="mt-5 text-[1.04rem] leading-8 text-white/64">{featured.data.summary}</p>
             {featured.data.keyFeatures && featured.data.keyFeatures.length > 0 && (
               <div class="mt-4 flex flex-wrap gap-2">
@@ -129,6 +134,11 @@ const others = projects.filter((p) => !p.data.featured);
               </div>
 
               <h3 class="mt-4 font-display text-[1.4rem] font-bold text-white">{project.data.title}</h3>
+              {project.data.draft && (
+                <span class="mt-2 inline-flex items-center gap-1.5 border border-yellow-400/35 bg-yellow-400/[0.07] px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-yellow-300">
+                  Under Construction
+                </span>
+              )}
               <p class="mt-3 flex-1 text-[1.02rem] leading-7 text-white/58">{project.data.summary}</p>
 
               <span class="mt-6 inline-flex items-center gap-2 font-display text-[12px] uppercase tracking-[0.18em] text-white/40 transition-colors duration-300 group-hover:text-accent-blue">

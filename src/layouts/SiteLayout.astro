@@ -55,6 +55,17 @@ function isActivePath(path: string) {
   </head>
   <body class="bg-page-bg font-body text-white antialiased">
     <div class="site-shell min-h-screen overflow-x-clip">
+      <!-- Global: subtle grid pattern -->
+      <div
+        class="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
+        style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 60px 60px;"
+        aria-hidden="true"
+      ></div>
+      <!-- Global: radial glow -->
+      <div
+        class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(74,158,255,0.06),transparent_65%)]"
+        aria-hidden="true"
+      ></div>
       <header
         data-site-header
         data-scroll-state="top"

@@ -14,7 +14,7 @@ highlights:
   - "Added battle summary + per-tick replay (timeline slider + event log + HP/Shield curves) so players and developers can inspect why an outcome happened."
   - "Wrote two Python scripts used during balancing: one parses legacy UE print logs into CSV for analysis; another aggregates multiple runs for quick regression-style comparisons."
   - "Validated counterplay using two opposing wave lines (SiegeLine / PicketLine) randomly assigned each run, mapped to the four-build space (Armor/Shield × Laser/Missile)."
-coverImage: "/images/project-placeholder.svg"
+coverImage: "/images/projects/void-architect/VA-Thumbnail2.png"
 demoVideo: "https://www.youtube.com/embed/67x-hivfs2Y"
 screenshots: []
 links:
@@ -25,9 +25,8 @@ order: 1
 keyFeatures:
   - "Triangular Grid Placement"
   - "Tick Simulation"
-  - "Replay UI"
-  - "Balance Tooling"
-  - "Explainable Outcomes"
+  - "Replay System & UI"
+  - "Balance & Tooling"
 focusCards:
   - title: "Tick-Driven Combat Sim"
     description: "Structured virtual-second simulation loop making combat outcomes analyzable and balance iteration reproducible at scale."
@@ -63,7 +62,7 @@ Combat resolves via a structured virtual-second tick loop — tracking vs. agili
 <img src="/images/projects/void-architect/SimulationPipeline.svg" alt="Simulation pipeline: tick start, player damage check, enemy damage check, then end when player HP is zero or all enemies are defeated" class="content-media" loading="lazy" />
 
 **4 — Analyze & Adapt**
-Replay UI explains why the encounter succeeded or failed. HP/Shield curves, event log, and timeline slider allow fast build iteration.
+Replay UI explains why the encounter succeeded or failed. HP/Shield/damage taken/dealt by tick, event log, and timeline slider allow fast build iteration.
 
 <div class="media-placeholder" data-label="Placeholder — Replay Timeline Slider / HP-Shield Chart"></div>
 

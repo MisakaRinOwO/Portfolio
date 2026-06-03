@@ -1,6 +1,7 @@
 ---
 title: "Unity Rhythm Prototype"
 featured: false
+draft: true
 tags: ["Unity", "C#", "Rhythm", "Audio", "UI"]
 role: "Solo"
 stack: "Unity, C#, FMOD"

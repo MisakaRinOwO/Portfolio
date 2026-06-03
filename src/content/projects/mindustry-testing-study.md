@@ -1,6 +1,7 @@
 ---
 title: "Mindustry Systems Study"
 featured: false
+draft: true
 tags: ["Simulation", "Modding", "Java", "Systems Design"]
 role: "Solo"
 stack: "Java, Mindustry Modding API"

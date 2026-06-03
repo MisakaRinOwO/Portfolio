@@ -1,6 +1,7 @@
 ---
 title: "Grid Systems Experiments"
 featured: false
+draft: true
 tags: ["C++", "Simulation", "Pathfinding", "Procedural"]
 role: "Solo"
 stack: "C++, SDL2"
