@@ -16,6 +16,7 @@ const projects = defineCollection({
     highlights: z.array(z.string()),
     coverImage: z.string().default('/images/project-placeholder.svg'),
     demoVideo: z.string().optional(),
+    demoVideoFallback: z.string().optional(),
     screenshots: z.array(z.string()).default([]),
     links: z
       .object({

@@ -110,14 +110,32 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       {(d.demoVideo || d.screenshots.length > 0) && (
         <div class="mt-10">
           {d.demoVideo ? (
-            <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black">
-              <iframe
-                src={d.demoVideo}
-                title={`${d.title} demo video`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                class="h-full w-full"
-              ></iframe>
+            <div data-demo-video-block class="space-y-3">
+              <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black" data-demo-media>
+                <iframe
+                  src={`${d.demoVideo}${d.demoVideo.includes('?') ? '&' : '?'}enablejsapi=1&playsinline=1&rel=0`}
+                  title={`${d.title} demo video`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  class="h-full w-full"
+                  data-demo-iframe
+                ></iframe>
+                {d.demoVideoFallback && (
+                  <video
+                    class="hidden h-full w-full"
+                    controls
+                    preload="metadata"
+                    playsinline
+                    data-demo-fallback
+                  >
+                    <source
+                      src={d.demoVideoFallback.startsWith('/') ? `${base}${d.demoVideoFallback}` : d.demoVideoFallback}
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
             </div>
           ) : (
             <div class={`grid gap-4 ${d.screenshots.length === 1 ? '' : 'sm:grid-cols-2'}`}>
@@ -405,6 +423,278 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     text-align: center;
     padding: 0 1rem;
   }
+  .prose-portfolio :global(.va-grid-carousel) {
+    margin: 1.5rem 0 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 0.75rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .prose-portfolio :global(.va-grid-carousel-stage) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  .prose-portfolio :global(.va-grid-carousel-viewport) {
+    min-width: 0;
+    --va-carousel-height: 420px;
+  }
+  .prose-portfolio :global(.va-grid-carousel-slide) {
+    margin: 0;
+    display: none;
+    gap: 0.55rem;
+  }
+  .prose-portfolio :global(.va-grid-carousel-slide.is-active) {
+    display: grid;
+    animation-duration: 560ms;
+    animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    animation-fill-mode: both;
+    will-change: transform, opacity;
+  }
+  .prose-portfolio :global(.va-grid-carousel-slide.is-active.va-slide-in-right) {
+    animation-name: vaSlideInFromRight;
+  }
+  .prose-portfolio :global(.va-grid-carousel-slide.is-active.va-slide-in-left) {
+    animation-name: vaSlideInFromLeft;
+  }
+  .prose-portfolio :global(.va-grid-carousel-zoom) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: 100%;
+    min-height: var(--va-carousel-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: inherit;
+    cursor: zoom-in;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .prose-portfolio :global(.va-grid-carousel-image) {
+    width: 100%;
+    height: var(--va-carousel-height);
+    display: block;
+    object-fit: contain;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .prose-portfolio :global(.va-grid-carousel-slide figcaption) {
+    margin: 0;
+    min-height: 2.6em;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-muted) 82%, #fff 18%);
+    text-align: center;
+  }
+  .prose-portfolio :global(.va-grid-carousel-nav) {
+    width: 2.45rem;
+    height: 8rem;
+    border: 1px solid rgba(74, 158, 255, 0.48);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--color-page-bg) 85%, #4a9eff 15%);
+    box-shadow: none;
+    color: #bfe3ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+  .prose-portfolio :global(.va-grid-carousel-nav:hover) {
+    border-color: rgba(120, 198, 255, 0.85);
+    color: #ffffff;
+    background: color-mix(in srgb, var(--color-page-bg) 72%, #4a9eff 28%);
+    transform: translateY(-1px);
+  }
+  .prose-portfolio :global(.va-grid-carousel-nav:active) {
+    transform: translateY(0);
+    background: color-mix(in srgb, var(--color-page-bg) 68%, #4a9eff 32%);
+  }
+  .prose-portfolio :global(.va-grid-carousel-dots) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+  .prose-portfolio :global(.va-grid-carousel-dot) {
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: transparent;
+    cursor: pointer;
+  }
+  .prose-portfolio :global(.va-grid-carousel-dot.is-active) {
+    background: #4a9eff;
+    border-color: #4a9eff;
+  }
+  :global(.va-lightbox) {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 8, 16, 0.9);
+    padding: 2rem 1rem;
+  }
+  :global(.va-lightbox.is-open) {
+    display: flex;
+  }
+  :global(.va-lightbox-frame) {
+    width: min(1200px, 96vw);
+    max-height: 92vh;
+    background: rgba(11, 16, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 0.9rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  :global(.va-lightbox-image) {
+    width: 100%;
+    height: var(--va-lightbox-height, calc(92vh - 9rem));
+    max-height: calc(92vh - 9rem);
+    object-fit: contain;
+    display: block;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    will-change: transform, opacity;
+  }
+  :global(.va-lightbox-image.va-slide-in-right) {
+    animation: vaLightboxSlideInRight 560ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  :global(.va-lightbox-image.va-slide-in-left) {
+    animation: vaLightboxSlideInLeft 560ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  :global(.va-lightbox-close) {
+    justify-self: end;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.55rem;
+    cursor: pointer;
+  }
+  :global(.va-lightbox-caption) {
+    margin: 0;
+    min-height: 2.6em;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.76);
+    text-align: center;
+  }
+  :global(.va-lightbox-controls) {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  :global(.va-lightbox-nav) {
+    width: 2.45rem;
+    height: 2.5rem;
+    border: 1px solid rgba(74, 158, 255, 0.55);
+    border-radius: 2px;
+    background: rgba(11, 20, 38, 0.95);
+    box-shadow: none;
+    color: #bfe3ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+  :global(.va-lightbox-nav:hover) {
+    border-color: rgba(120, 198, 255, 0.85);
+    color: #ffffff;
+    background: rgba(20, 38, 66, 0.98);
+    transform: translateY(-1px);
+  }
+  :global(.va-lightbox-nav:active) {
+    transform: translateY(0);
+    background: rgba(26, 48, 80, 0.98);
+  }
+  :global(.va-nav-triangle) {
+    display: block;
+    width: 0.78rem;
+    height: 0.92rem;
+    background: currentColor;
+  }
+  :global(.va-nav-triangle-left) {
+    clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  }
+  :global(.va-nav-triangle-right) {
+    clip-path: polygon(100% 50%, 0 0, 0 100%);
+  }
+  :global(.va-lightbox-dots) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+  :global(.va-lightbox-dot) {
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: transparent;
+    cursor: pointer;
+  }
+  :global(.va-lightbox-dot.is-active) {
+    background: #4a9eff;
+    border-color: #4a9eff;
+  }
+  @keyframes vaSlideInFromRight {
+    from {
+      opacity: 0.45;
+      transform: translateX(10%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes vaSlideInFromLeft {
+    from {
+      opacity: 0.45;
+      transform: translateX(-10%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes vaLightboxSlideInRight {
+    from {
+      opacity: 0.38;
+      transform: translateX(9%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes vaLightboxSlideInLeft {
+    from {
+      opacity: 0.38;
+      transform: translateX(-9%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @media (max-width: 900px) {
+    .prose-portfolio :global(.va-grid-carousel-nav) {
+      width: 1.85rem;
+      height: 1.85rem;
+    }
+  }
   .prose-portfolio :global(hr) {
     border: none;
     border-top: 1px solid rgba(255,255,255,0.07);
@@ -439,6 +729,56 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       el.setAttribute(attr, `${basePath}${raw}`);
     });
   }
+
+  // ── Hero media fallback: YouTube iframe -> local mp4 ──────────────
+  const demoVideoBlocks = document.querySelectorAll<HTMLElement>('[data-demo-video-block]');
+  demoVideoBlocks.forEach((block) => {
+    const media = block.querySelector<HTMLElement>('[data-demo-media]');
+    const iframe = block.querySelector<HTMLIFrameElement>('[data-demo-iframe]');
+    const fallback = block.querySelector<HTMLVideoElement>('[data-demo-fallback]');
+    if (!media || !iframe || !fallback) return;
+
+    let resolved = false;
+    const revealFallback = () => {
+      if (resolved) return;
+      resolved = true;
+      iframe.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      fallback.muted = false;
+      fallback.volume = 0.5;
+    };
+
+    const markLoaded = () => {
+      if (resolved) return;
+      resolved = true;
+    };
+
+    // If embed is blocked or never finishes, switch to local media.
+    const fallbackTimer = window.setTimeout(() => {
+      if (!resolved) revealFallback();
+    }, 5000);
+
+    iframe.addEventListener('load', () => {
+      // Set YouTube player to unmuted 50% volume once embed is ready.
+      window.setTimeout(() => {
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+          '*',
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'setVolume', args: [50] }),
+          '*',
+        );
+      }, 800);
+      window.clearTimeout(fallbackTimer);
+      markLoaded();
+    });
+
+    iframe.addEventListener('error', () => {
+      window.clearTimeout(fallbackTimer);
+      revealFallback();
+    });
+  });
 
   // ── TOC: collapse / expand ──────────────────────────────────────────
   const toggle = document.getElementById('toc-toggle');
@@ -546,5 +886,329 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
         if (!tocTick) { window.requestAnimationFrame(updateToc); tocTick = true; }
       }, { passive: true });
     }
+  }
+
+  // ── Core Systems carousel: stable height + transitions + lightbox ─
+  const carousels = document.querySelectorAll<HTMLElement>('[data-va-carousel]');
+  if (carousels.length > 0) {
+    const lightbox = document.createElement('div');
+    lightbox.className = 'va-lightbox';
+    lightbox.innerHTML = `
+      <div class="va-lightbox-frame">
+        <button type="button" class="va-lightbox-close" aria-label="Close large image">Close</button>
+        <img class="va-lightbox-image" alt="" />
+        <p class="va-lightbox-caption"></p>
+        <div class="va-lightbox-controls" aria-label="Large image controls">
+          <button type="button" class="va-lightbox-nav" data-lightbox-prev aria-label="Previous large image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+          <div class="va-lightbox-dots" data-lightbox-dots></div>
+          <button type="button" class="va-lightbox-nav" data-lightbox-next aria-label="Next large image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(lightbox);
+
+    const lightboxImage = lightbox.querySelector<HTMLImageElement>('.va-lightbox-image');
+    const lightboxCaption = lightbox.querySelector<HTMLParagraphElement>('.va-lightbox-caption');
+    const closeLightboxBtn = lightbox.querySelector<HTMLButtonElement>('.va-lightbox-close');
+    const lightboxPrevBtn = lightbox.querySelector<HTMLButtonElement>('[data-lightbox-prev]');
+    const lightboxNextBtn = lightbox.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+    const lightboxDotsWrap = lightbox.querySelector<HTMLElement>('[data-lightbox-dots]');
+
+    type CarouselState = {
+      carousel: HTMLElement;
+      slides: HTMLElement[];
+      dots: HTMLButtonElement[];
+      images: HTMLImageElement[];
+      prevBtn: HTMLButtonElement | null;
+      nextBtn: HTMLButtonElement | null;
+      index: number;
+      direction: 'next' | 'prev';
+      autoMs: number;
+      timer: number | null;
+      setSlide: (nextIndex: number) => void;
+      restartAutoplay: () => void;
+      stopAutoplay: () => void;
+      ensureStableHeight: () => void;
+    };
+
+    const states: CarouselState[] = [];
+    let activeLightboxState: CarouselState | null = null;
+
+    const isLightboxOpen = () => lightbox.classList.contains('is-open');
+
+    const getSlideData = (state: CarouselState) => {
+      const slide = state.slides[state.index];
+      const btn = slide.querySelector<HTMLButtonElement>('.va-grid-carousel-zoom');
+      const img = slide.querySelector<HTMLImageElement>('img');
+      const caption = slide.querySelector('figcaption')?.textContent?.trim() ?? '';
+      const src = btn?.dataset.lightboxSrc ?? img?.getAttribute('src') ?? '';
+      return { src, caption, alt: img?.alt ?? '' };
+    };
+
+    const renderLightboxControls = (state: CarouselState) => {
+      if (!lightboxDotsWrap) return;
+      lightboxDotsWrap.innerHTML = '';
+      state.slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = `va-lightbox-dot${i === state.index ? ' is-active' : ''}`;
+        dot.setAttribute('aria-label', `Show large image ${i + 1}`);
+        dot.addEventListener('click', () => {
+          state.setSlide(i);
+          renderLightboxContent(state);
+        });
+        lightboxDotsWrap.appendChild(dot);
+      });
+    };
+
+    const renderLightboxContent = (state: CarouselState) => {
+      if (!lightboxImage) return;
+      const data = getSlideData(state);
+      if (!data.src) return;
+      const normalizedSrc = data.src.startsWith(`${basePath}/`) || data.src === basePath ? data.src : `${basePath}${data.src}`;
+      lightboxImage.classList.remove('va-slide-in-right', 'va-slide-in-left');
+      void lightboxImage.offsetWidth;
+      lightboxImage.classList.add(state.direction === 'next' ? 'va-slide-in-right' : 'va-slide-in-left');
+      lightboxImage.src = normalizedSrc;
+      lightboxImage.alt = data.alt;
+      if (lightboxCaption) lightboxCaption.textContent = data.caption;
+      renderLightboxControls(state);
+    };
+
+    const syncLightboxHeight = (state: CarouselState) => {
+      const frame = lightbox.querySelector<HTMLElement>('.va-lightbox-frame');
+      if (!frame) return;
+
+      const frameWidth = Math.min(1200, window.innerWidth * 0.96) - 28;
+      const maxSpace = window.innerHeight * 0.92 - 150;
+      let target = 0;
+
+      state.images.forEach((img) => {
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+          const rendered = (frameWidth * img.naturalHeight) / img.naturalWidth;
+          if (rendered > target) target = rendered;
+        }
+      });
+
+      if (target <= 0) {
+        lightbox.style.removeProperty('--va-lightbox-height');
+        return;
+      }
+
+      const clamped = Math.min(Math.max(target, 280), Math.max(280, maxSpace));
+      lightbox.style.setProperty('--va-lightbox-height', `${Math.round(clamped)}px`);
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      document.body.style.overflow = '';
+      lightbox.style.removeProperty('--va-lightbox-height');
+      states.forEach((state) => {
+        if (!state.carousel.matches(':hover') && !state.carousel.contains(document.activeElement)) {
+          state.restartAutoplay();
+        }
+      });
+      activeLightboxState = null;
+    };
+
+    closeLightboxBtn?.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    lightboxPrevBtn?.addEventListener('click', () => {
+      if (!activeLightboxState) return;
+      activeLightboxState.setSlide(activeLightboxState.index - 1);
+      renderLightboxContent(activeLightboxState);
+    });
+
+    lightboxNextBtn?.addEventListener('click', () => {
+      if (!activeLightboxState) return;
+      activeLightboxState.setSlide(activeLightboxState.index + 1);
+      renderLightboxContent(activeLightboxState);
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (event.key === 'Escape') {
+        closeLightbox();
+        return;
+      }
+      if (!activeLightboxState) return;
+      if (event.key === 'ArrowLeft') {
+        activeLightboxState.setSlide(activeLightboxState.index - 1);
+        renderLightboxContent(activeLightboxState);
+      } else if (event.key === 'ArrowRight') {
+        activeLightboxState.setSlide(activeLightboxState.index + 1);
+        renderLightboxContent(activeLightboxState);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (activeLightboxState && isLightboxOpen()) {
+        syncLightboxHeight(activeLightboxState);
+      }
+    });
+
+    carousels.forEach((carousel) => {
+      const slides = Array.from(carousel.querySelectorAll<HTMLElement>('.va-grid-carousel-slide'));
+      const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.va-grid-carousel-dot'));
+      const images = Array.from(carousel.querySelectorAll<HTMLImageElement>('.va-grid-carousel-image'));
+      const prevBtn = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]');
+      const viewport = carousel.querySelector<HTMLElement>('.va-grid-carousel-viewport');
+
+      const autoMsRaw = Number(carousel.dataset.autoMs);
+      const autoMs = Number.isFinite(autoMsRaw) && autoMsRaw > 0 ? autoMsRaw : 5000;
+
+      if (slides.length <= 1) {
+        prevBtn?.setAttribute('hidden', 'true');
+        nextBtn?.setAttribute('hidden', 'true');
+      }
+
+      let index = slides.findIndex((slide) => slide.classList.contains('is-active'));
+      if (index < 0) index = 0;
+      let timer: number | null = null;
+      let lastDirection: 'next' | 'prev' = 'next';
+
+      const setSlide = (nextIndex: number) => {
+        const wrapped = (nextIndex + slides.length) % slides.length;
+        const previous = index;
+        if (wrapped === previous) return;
+
+        // Direction follows caller intent (next/prev for arrows+autoplay, index compare for dots).
+        if (nextIndex > previous) {
+          lastDirection = 'next';
+        } else if (nextIndex < previous) {
+          lastDirection = 'prev';
+        }
+        state.direction = lastDirection;
+
+        index = wrapped;
+        state.index = wrapped;
+
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('is-active', i === wrapped);
+          slide.classList.remove('va-slide-in-right', 'va-slide-in-left');
+          if (i === wrapped) {
+            slide.classList.add(lastDirection === 'next' ? 'va-slide-in-right' : 'va-slide-in-left');
+          }
+        });
+
+        dots.forEach((dot, i) => {
+          const active = i === wrapped;
+          dot.classList.toggle('is-active', active);
+          dot.setAttribute('aria-current', String(active));
+        });
+
+        if (activeLightboxState === state && lightbox.classList.contains('is-open')) {
+          renderLightboxContent(state);
+        }
+      };
+
+      const restartAutoplay = () => {
+        if (isLightboxOpen()) return;
+        if (timer !== null) window.clearInterval(timer);
+        timer = window.setInterval(() => {
+          setSlide(index + 1);
+        }, autoMs);
+      };
+
+      const stopAutoplay = () => {
+        if (timer !== null) window.clearInterval(timer);
+        timer = null;
+      };
+
+      const ensureStableHeight = () => {
+        if (!viewport) return;
+        const viewportWidth = viewport.clientWidth;
+        if (!viewportWidth) return;
+
+        let maxHeight = 0;
+        images.forEach((img) => {
+          if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+            const rendered = (viewportWidth * img.naturalHeight) / img.naturalWidth;
+            if (rendered > maxHeight) maxHeight = rendered;
+          }
+        });
+
+        if (maxHeight <= 0) return;
+        const maxAllowed = window.innerWidth < 900 ? 460 : 680;
+        const clamped = Math.min(Math.max(maxHeight, 240), maxAllowed);
+        carousel.style.setProperty('--va-carousel-height', `${Math.round(clamped)}px`);
+      };
+
+      const state: CarouselState = {
+        carousel,
+        slides,
+        dots,
+        images,
+        prevBtn,
+        nextBtn,
+        index,
+        direction: 'next',
+        autoMs,
+        timer,
+        setSlide,
+        restartAutoplay,
+        stopAutoplay,
+        ensureStableHeight,
+      };
+
+      prevBtn?.addEventListener('click', () => {
+        setSlide(index - 1);
+        restartAutoplay();
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        setSlide(index + 1);
+        restartAutoplay();
+      });
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          setSlide(i);
+          restartAutoplay();
+        });
+      });
+
+      const zoomButtons = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.va-grid-carousel-zoom'));
+      zoomButtons.forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          setSlide(i);
+          states.forEach((state) => state.stopAutoplay());
+          activeLightboxState = state;
+          syncLightboxHeight(state);
+          renderLightboxContent(state);
+          lightbox.classList.add('is-open');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      carousel.addEventListener('mouseenter', stopAutoplay);
+      carousel.addEventListener('mouseleave', restartAutoplay);
+      carousel.addEventListener('focusin', stopAutoplay);
+      carousel.addEventListener('focusout', () => {
+        if (isLightboxOpen()) return;
+        if (!carousel.contains(document.activeElement)) restartAutoplay();
+      });
+
+      images.forEach((img) => {
+        if (img.complete) {
+          ensureStableHeight();
+        } else {
+          img.addEventListener('load', ensureStableHeight, { once: true });
+        }
+      });
+
+      setSlide(index);
+      ensureStableHeight();
+      restartAutoplay();
+      states.push(state);
+    });
+
+    window.addEventListener('resize', () => {
+      states.forEach((state) => state.ensureStableHeight());
+    });
   }
 </script>

@@ -16,6 +16,7 @@ highlights:
   - "Validated counterplay using two opposing wave lines (SiegeLine / PicketLine) randomly assigned each run, mapped to the four-build space (Armor/Shield × Laser/Missile)."
 coverImage: "/images/projects/void-architect/VA-Thumbnail2.png"
 demoVideo: "https://www.youtube.com/embed/67x-hivfs2Y"
+demoVideoFallback: "/images/projects/void-architect/VoidArchitect_Demo_Release.mp4"
 screenshots: []
 links:
   video: "https://youtu.be/67x-hivfs2Y"
@@ -52,19 +53,17 @@ A wave line (SiegeLine or PicketLine) is randomly assigned. The hint panel (top-
 <img src="/images/projects/void-architect/GameplayLoop-1.gif" alt="Gameplay loop step 1: wave assignment and hint panel" class="content-media" loading="lazy" />
 
 **2 — Build Under Constraints**
-Purchase and place modules (Armor / Shield / Laser / Missile) on the triangle grid, within CPU, power, and weight limits. Live stat deltas show trade-offs before committing.
+Purchase and place modules (Armor / Shield / Laser / Missile) on the triangle grid, within CPU, power, and weight limits. Live stat deltas show trade-offs before committing. Players can also right-click a placed module to sell it with no loss.
 
 <img src="/images/projects/void-architect/GameplayLoop-2.gif" alt="Gameplay loop step 2: ship building with module placement and live stat preview" class="content-media" loading="lazy" />
 
-**3 — Resolve Combat**
-Combat resolves via a structured virtual-second tick loop — tracking vs. agility determines hit probability per tick, reload/cooldown counters advance, shield absorbs damage before HP. The simulation architecture is tick-driven and reproducible, making outcomes analyzable after every run.
-
-<img src="/images/projects/void-architect/SimulationPipeline.svg" alt="Simulation pipeline: tick start, player damage check, enemy damage check, then end when player HP is zero or all enemies are defeated" class="content-media" loading="lazy" />
+**3 — Next Wave**
+Click **Next Wave** to resolve combat with the current build.
 
 **4 — Analyze & Adapt**
-Replay UI explains why the encounter succeeded or failed. HP/Shield/damage taken/dealt by tick, event log, and timeline slider allow fast build iteration.
+After the fight, players can open replay and inspect per-tick HP/Shield + player/enemy actions in **Detail** (timeline scrollbar), or press **Continue** to return to shop for the next build iteration.
 
-<div class="media-placeholder" data-label="Placeholder — Replay Timeline Slider / HP-Shield Chart"></div>
+<div class="media-placeholder" data-label="Placeholder — Replay GIF (Summary + Detail with timeline scrollbar, per-tick HP/Shield and player/enemy actions)"></div>
 
 ---
 
@@ -96,7 +95,42 @@ Placement legality is enforced through explicit edge-adjacency rules and collisi
 - Three footprint sizes supported architecturally: small (1 triangle), medium (rhombus, 2), large (hexagon, 6). Current content uses small only.
 - Orientation and edge connectivity surface as player constraints — geometry is the design space.
 
-<div class="media-placeholder" data-label="Placeholder — Grid Overlay / Placement GIF / Rotation Examples"></div>
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="5000" aria-label="Grid placement system gallery">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous grid image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA-%20GridSystemCoordinate.png" aria-label="Open coordinate setup image in large view">
+<img src="/images/projects/void-architect/VA-%20GridSystemCoordinate.png" alt="Grid coordinate setup: inventory coordinate, array coordinate, and internal layout mapping" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Coordinate model: inventory-space mapping, array indexing, and internal module layout mapping.</figcaption>
+</figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA-%20GridSystemCollider.png" aria-label="Open collider setup image in large view">
+<img src="/images/projects/void-architect/VA-%20GridSystemCollider.png" alt="Grid collider setup: grid center and hexagon anchor overlap constraints" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Collider anchors: grid-center and hex-anchor constraints prevent ambiguous overlap and enforce legal placement tests.</figcaption>
+</figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA-%20GridSystemPlacement.png" aria-label="Open placement flow image in large view">
+<img src="/images/projects/void-architect/VA-%20GridSystemPlacement.png" alt="Simplified placement collision flow for triangle, diamond, and hexagon module checks" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Placement flow: collision result + orientation-aware neighbor checks determine placeable vs blocked states.</figcaption>
+</figure>
+</div>
+
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next grid image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+
+<div class="va-grid-carousel-dots" role="tablist" aria-label="Grid image pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="2" aria-label="Show image 3" aria-current="false"></button>
+</div>
+</div>
 
 ### Modular Loadout & Stat Aggregation
 
@@ -117,17 +151,19 @@ Combat resolves in a virtual-second tick loop (~100 iterations per encounter), d
 - Cooldown and reload tracked as integer counters — no floating-point state.
 - The tick-driven architecture makes combat state traceable per step, supporting reproducible balancing and replay reconstruction.
 
-<div class="media-placeholder" data-label="Placeholder — Replay Timeline / Combat Log / Hit-Chance Example"></div>
+<img src="/images/projects/void-architect/SimulationPipeline.svg" alt="Simulation pipeline: tick start, player damage check, enemy damage check, then end when player HP is zero or all enemies are defeated" class="content-media" loading="lazy" />
+
+<div class="media-placeholder" data-label="Placeholder — Sim-only evidence (tick state snapshot / hit-resolution walkthrough / shield-overflow example)"></div>
 
 ### Replay & Debugging UI
 
 Each encounter generates a structured event record consumed by two UI layers.
 
 - **Battle summary**: duration, hit rates, damage dealt/taken, outcome.
-- **Detail replay**: timeline slider scrubs tick-by-tick HP/Shield bars + event log.
+- **Detail replay**: timeline slider scrubs tick-by-tick current HP/Shield + event log.
 - Once implemented, the replay UI significantly reduced reliance on manual log inspection during balancing iteration — the same event record that explains outcomes to players also supports developer debugging.
 
-<div class="media-placeholder" data-label="Placeholder — Replay GIF / Event Log / HP-Shield Curve"></div>
+<div class="media-placeholder" data-label="Placeholder — Replay GIF (tick slider + current HP/Shield + action log) and summary screenshot"></div>
 
 ---
 
