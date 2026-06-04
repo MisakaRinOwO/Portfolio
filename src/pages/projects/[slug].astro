@@ -141,11 +141,11 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     ═══════════════════════════════════════════════════════════════════ -->
     <div class="mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:items-start lg:gap-10">
 
-      <!-- TOC sidebar — first in DOM so on mobile it appears above content, not below -->
+      <!-- TOC sidebar: fixed on mobile (always at top), sticky sidebar on desktop -->
       {tocHeadings.length > 0 && (
         <aside
           id="toc-aside"
-          class="sticky z-40 mb-8 bg-page-bg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:order-last lg:mb-0 lg:top-28"
+          class="fixed left-0 right-0 z-40 bg-page-bg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:static lg:sticky lg:top-28 lg:order-last lg:mb-0"
           aria-label="Page contents"
         >
           <!-- Header / toggle button -->
@@ -179,6 +179,9 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
           </nav>
         </aside>
       )}
+
+      <!-- Spacer: compensates for fixed TOC bar height on mobile (hidden on desktop) -->
+      <div id="toc-spacer" class="lg:hidden"></div>
 
       <!-- Main content column -->
       <div>
@@ -496,38 +499,52 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
   let tocLocked = false;
   let tocLockTimer = 0;
 
-  // ── TOC: mobile hide/show — mirrors the site header state exactly ─
+  // ── TOC: mobile hide/show ─────────────────────────────────────────
   const tocAside = document.getElementById('toc-aside');
-  const siteHeader = document.querySelector('[data-site-header]');
+  const tocSpacer = document.getElementById('toc-spacer');
+  const siteHeader = document.querySelector<HTMLElement>('[data-site-header]');
   if (tocAside && siteHeader) {
     const mq = window.matchMedia('(max-width: 1023px)');
     if (mq.matches) {
-      // Pin TOC flush below the actual header height
-      const tocTop = siteHeader.offsetHeight;
-      tocAside.style.top = `${tocTop}px`;
+      // Position fixed bar flush below the real header
+      const headerH = siteHeader.offsetHeight;
+      tocAside.style.top = `${headerH}px`;
+      // Spacer fills the gap the fixed element leaves behind
+      if (tocSpacer) tocSpacer.style.height = `${tocAside.offsetHeight}px`;
 
-      new MutationObserver(() => {
-        if (!mq.matches) return;
-        const state = siteHeader.getAttribute('data-scroll-state');
-        if (state === 'hidden') {
-          if (tocLocked) {
-            // Tap opened the list — restore header so it stays visible
-            siteHeader.setAttribute('data-scroll-state', 'visible');
-            return;
-          }
-          // Auto-collapse list when scrolling away
+      let lastTocScrollY = window.scrollY;
+      let tocTick = false;
+      let tocHidden = false;
+      const DELTA = 8;
+      const TOP_OFFSET = 24;
+
+      const updateToc = () => {
+        const y = window.scrollY;
+        const d = y - lastTocScrollY;
+
+        if (y <= TOP_OFFSET) {
+          if (tocHidden) { tocAside.style.transform = ''; tocHidden = false; }
+        } else if (d > DELTA && !tocHidden && !tocLocked) {
+          // Hide: push bar above the viewport (headerH + its own height)
+          tocAside.style.transform = `translateY(-${headerH + tocAside.offsetHeight + 8}px)`;
+          tocHidden = true;
           if (list && chevron && toggle) {
             list.classList.add('toc-collapsed');
             chevron.classList.add('toc-chevron-collapsed');
             toggle.setAttribute('aria-expanded', 'false');
           }
-          // Push bar fully above the viewport
-          const hideAmount = tocTop + tocAside.offsetHeight + 8;
-          tocAside.style.transform = `translateY(-${hideAmount}px)`;
-        } else {
+        } else if (d < -DELTA && tocHidden) {
           tocAside.style.transform = '';
+          tocHidden = false;
         }
-      }).observe(siteHeader, { attributes: true, attributeFilter: ['data-scroll-state'] });
+
+        lastTocScrollY = y;
+        tocTick = false;
+      };
+
+      window.addEventListener('scroll', () => {
+        if (!tocTick) { window.requestAnimationFrame(updateToc); tocTick = true; }
+      }, { passive: true });
     }
   }
 </script>
