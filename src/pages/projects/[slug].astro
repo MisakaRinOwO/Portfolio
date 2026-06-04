@@ -141,48 +141,11 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     ═══════════════════════════════════════════════════════════════════ -->
     <div class="mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:items-start lg:gap-10">
 
-      <!-- Main content column -->
-      <div>
-
-        <!-- PART 2 — PROTOTYPE FOCUS -->
-        {d.focusCards && d.focusCards.length > 0 ? (
-          <section aria-label="Prototype Focus">
-            <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">What This Prototype Focused On</h2>
-            <div class="mt-6 grid gap-4 sm:grid-cols-2">
-              {d.focusCards.map((card) => (
-                <div class="border border-white/10 bg-white/[0.02] p-5">
-                  <h3 class="font-display text-[12px] font-bold uppercase tracking-[0.15em] text-accent-blue">{card.title}</h3>
-                  <p class="mt-2 text-[0.93rem] leading-6 text-white/60">{card.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : d.highlights.length > 0 && (
-          <section class="border-l-2 border-accent-blue/30 pl-6" aria-label="Key Highlights">
-            <p class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">Key Highlights</p>
-            <ul class="mt-5 space-y-3">
-              {d.highlights.map((h) => (
-                <li class="flex gap-3 text-[1.06rem] leading-8 text-white/68">
-                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-blue" aria-hidden="true"></span>
-                  {h}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <!-- PART 3 — FULL BREAKDOWN -->
-        <article class="prose-portfolio mt-16" aria-label="Full Breakdown" data-base={base}>
-          <Content />
-        </article>
-
-      </div>
-
-      <!-- TOC sidebar -->
+      <!-- TOC sidebar — first in DOM so on mobile it appears above content, not below -->
       {tocHeadings.length > 0 && (
         <aside
           id="toc-aside"
-          class="mt-0 lg:sticky lg:top-28"
+          class="sticky z-40 mb-8 bg-page-bg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:order-last lg:mb-0 lg:top-28"
           aria-label="Page contents"
         >
           <!-- Header / toggle button -->
@@ -216,6 +179,43 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
           </nav>
         </aside>
       )}
+
+      <!-- Main content column -->
+      <div>
+
+        <!-- PART 2 — PROJECT FOCUS -->
+        {d.focusCards && d.focusCards.length > 0 ? (
+          <section aria-label="Project Focus">
+            <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">What This Project Focused On</h2>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              {d.focusCards.map((card) => (
+                <div class="border border-white/10 bg-white/[0.02] p-5">
+                  <h3 class="font-display text-[12px] font-bold uppercase tracking-[0.15em] text-accent-blue">{card.title}</h3>
+                  <p class="mt-2 text-[0.93rem] leading-6 text-white/60">{card.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : d.highlights.length > 0 && (
+          <section class="border-l-2 border-accent-blue/30 pl-6" aria-label="Key Highlights">
+            <p class="font-display text-[13px] uppercase tracking-[0.2em] text-white/40">Key Highlights</p>
+            <ul class="mt-5 space-y-3">
+              {d.highlights.map((h) => (
+                <li class="flex gap-3 text-[1.06rem] leading-8 text-white/68">
+                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-blue" aria-hidden="true"></span>
+                  {h}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <!-- PART 3 — FULL BREAKDOWN -->
+        <article class="prose-portfolio mt-16" aria-label="Full Breakdown" data-base={base}>
+          <Content />
+        </article>
+
+      </div>
 
     </div>
 
@@ -455,6 +455,10 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       const collapsed = list.classList.toggle('toc-collapsed');
       chevron.classList.toggle('toc-chevron-collapsed', collapsed);
       toggle.setAttribute('aria-expanded', String(!collapsed));
+      // Lock: prevent the micro-scroll from this tap hiding the TOC
+      tocLocked = true;
+      clearTimeout(tocLockTimer);
+      tocLockTimer = window.setTimeout(() => { tocLocked = false; }, 600);
     });
   }
 
@@ -486,5 +490,44 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     );
 
     headingEls.forEach((el) => observer.observe(el));
+  }
+
+  // Shared lock: set by toggle click to ignore the micro-scroll that follows
+  let tocLocked = false;
+  let tocLockTimer = 0;
+
+  // ── TOC: mobile hide/show — mirrors the site header state exactly ─
+  const tocAside = document.getElementById('toc-aside');
+  const siteHeader = document.querySelector('[data-site-header]');
+  if (tocAside && siteHeader) {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    if (mq.matches) {
+      // Pin TOC flush below the actual header height
+      const tocTop = siteHeader.offsetHeight;
+      tocAside.style.top = `${tocTop}px`;
+
+      new MutationObserver(() => {
+        if (!mq.matches) return;
+        const state = siteHeader.getAttribute('data-scroll-state');
+        if (state === 'hidden') {
+          if (tocLocked) {
+            // Tap opened the list — restore header so it stays visible
+            siteHeader.setAttribute('data-scroll-state', 'visible');
+            return;
+          }
+          // Auto-collapse list when scrolling away
+          if (list && chevron && toggle) {
+            list.classList.add('toc-collapsed');
+            chevron.classList.add('toc-chevron-collapsed');
+            toggle.setAttribute('aria-expanded', 'false');
+          }
+          // Push bar fully above the viewport
+          const hideAmount = tocTop + tocAside.offsetHeight + 8;
+          tocAside.style.transform = `translateY(-${hideAmount}px)`;
+        } else {
+          tocAside.style.transform = '';
+        }
+      }).observe(siteHeader, { attributes: true, attributeFilter: ['data-scroll-state'] });
+    }
   }
 </script>

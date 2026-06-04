@@ -1,9 +1,9 @@
 ---
 title: "Godot Engine — Editor Case Study & C++ Contributions"
 featured: false
-draft: true
+draft: false
 tags: ["Godot", "C++", "Reverse Engineering", "Open Source", "3D Editor"]
-role: "Contributor / Reverse Engineering"
+role: "Team Contributor (3) / Feature Scoping · Design · Implementation"
 stack: "Godot 4, C++, Editor Tooling"
 focus: "Gameplay Engineer Positioning · Large Codebase Navigation · Editor/System Design"
 year: "2025"
@@ -42,6 +42,8 @@ This page is intentionally framed as an engineering case study, not only a class
 I focused on Godot's 3D editor layer and submitted two PRs:
 - **[PR #107101](https://github.com/godotengine/godot/pull/107101)**: CSG handle hover-feedback bug fix
 - **[PR #107296](https://github.com/godotengine/godot/pull/107296)**: 3D ruler mode usability enhancement
+
+Two earlier test-coverage PRs — [#106574](https://github.com/godotengine/godot/pull/106574) (Sprite2D unit tests) and [#106575](https://github.com/godotengine/godot/pull/106575) (AnimationBlendTree tests) — were also merged into `master`, establishing the contributor foothold before moving to editor-layer work.
 
 <div class="media-grid media-grid-2">
   <figure>
@@ -85,7 +87,7 @@ I used a lightweight but disciplined process from SWE 265P:
   <figcaption>Workflow overview artifact: hypothesis -> system mapping -> code tracing -> minimal patch -> validation.</figcaption>
 </figure>
 
-## Contribution A ([PR #107101](https://github.com/godotengine/godot/pull/107101))
+## Contribution A
 
 **Problem**
 - `is_handle_highlighted(id, p_secondary)` effectively failed to produce proper hover differentiation for CSGShapes3D gizmos.
@@ -98,7 +100,7 @@ I used a lightweight but disciplined process from SWE 265P:
 - Replaced the problematic mask behavior with deterministic opacity states:
   - idle: `0.75`
   - hovered: `1.0`
-- Kept the diff intentionally small to improve reviewability and reduce unintended side effects.
+- Kept the diff intentionally small to improve reviewability and reduce unintended side effects — targeted bug isolation with minimal regression surface in an unfamiliar subsystem.
 
 <div class="media-grid media-grid-3">
   <figure>
@@ -115,20 +117,22 @@ I used a lightweight but disciplined process from SWE 265P:
   </figure>
 </div>
 
-**Engineering Signal**
-- Demonstrates targeted C++ bug isolation and minimal-risk patch design in an unfamiliar engine subsystem.
-
-## Contribution B ([PR #107296](https://github.com/godotengine/godot/pull/107296))
+## Contribution B
 
 **Problem**
-- The ruler provided scalar distance but weak spatial context in perspective views.
-- This made it harder to reason about component-wise displacement during level/tool editing.
+- The ruler reported aggregate Euclidean distance only — no axis decomposition, no spatial reference lines.
+- In perspective views this made it hard to reason about component-wise displacement during level and tool editing.
+
+**Root Cause**
+- Axis-aware measurement was simply out of scope in the original ruler implementation; the engine had no concept of projecting the measured distance onto individual axes.
 
 **Implementation**
 - Added axis-projected helper lines and contextual labels while measuring in 3D.
 - Added guardrails to keep overlays readable:
   - suppress near-zero labels (`< 0.0001`)
   - suppress extra XZ overlays when constrained to 2D-plane usage
+
+The guardrails reflect a deliberate UX tradeoff: add information density where it helps spatial reasoning, suppress noise where it doesn't.
 
 <div class="media-grid media-grid-2">
   <figure>
@@ -141,37 +145,41 @@ I used a lightweight but disciplined process from SWE 265P:
   </figure>
 </div>
 
-**Engineering Signal**
-- Demonstrates design judgment in editor UX: increase information density where useful, reduce noise where distracting.
-
 ## Review and Validation
 
-- [PR #107101](https://github.com/godotengine/godot/pull/107101) and [PR #107296](https://github.com/godotengine/godot/pull/107296) passed CI.
-- [PR #107101](https://github.com/godotengine/godot/pull/107101) and [PR #107296](https://github.com/godotengine/godot/pull/107296) received feedback from core maintainers.
-- The process required balancing technical correctness, readability, and maintainability under external review.
+**[PR #107101](https://github.com/godotengine/godot/pull/107101) — CSG Handle Highlighting:**
+- All 20 CI checks passed.
+- [@Calinou](https://github.com/Calinou) (core team) tested the fix locally and suggested reversing the opacity logic — non-hovered handles at `0.75`, hovered at `1.0` — to match Godot's convention of increasing opacity on hover rather than decreasing it.
+- [@fire](https://github.com/fire) (core team) responded: *"I think this is ok 👍. It's not a big change."*
+- [@Repiteo](https://github.com/Repiteo) added the `cherrypick:4.5` label in Sep 2025, targeting the fix for the 4.5 release branch.
+
+**[PR #107296](https://github.com/godotengine/godot/pull/107296) — 3D Ruler Enhancement:**
+- All 20 CI checks passed.
+- [@jokosablenk](https://github.com/jokosablenk) commented with a reference to the related ruler PR [#106785](https://github.com/godotengine/godot/pull/106785) for additional context.
+- [@AThousandShips](https://github.com/AThousandShips) added `enhancement`, `topic:editor`, and `topic:3d` labels. Milestone set to 4.x.
+- Awaiting formal code review before merge.
 
 <div class="media-grid media-grid-2">
   <figure>
-    <img src="/images/projects/godot-case-study/pr-related/107101conversation.png" alt="Maintainer discussion on PR #107101 for CSG handle highlighting changes" class="content-media" loading="lazy" />
-    <figcaption>Maintainer discussion on <a href="https://github.com/godotengine/godot/pull/107101" target="_blank" rel="noopener noreferrer">PR #107101</a> (CSG highlighting), showing review-driven iteration.</figcaption>
+    <img src="/images/projects/godot-case-study/pr-related/107101conversation.png" alt="Maintainer discussion thread on PR #107101" class="content-media" loading="lazy" />
+    <figcaption>Review thread for <a href="https://github.com/godotengine/godot/pull/107101" target="_blank" rel="noopener noreferrer">PR #107101</a>: Calinou tested locally and requested an opacity logic reversal; change incorporated.</figcaption>
   </figure>
   <figure>
-    <img src="/images/projects/godot-case-study/pr-related/107101CIpassed.png" alt="CI checks passed for PR #107101" class="content-media" loading="lazy" />
-    <figcaption>CI pass evidence for <a href="https://github.com/godotengine/godot/pull/107101" target="_blank" rel="noopener noreferrer">PR #107101</a> before merge consideration.</figcaption>
+    <img src="/images/projects/godot-case-study/pr-related/107101CIpassed.png" alt="20/20 CI checks passed for PR #107101" class="content-media" loading="lazy" />
+    <figcaption>20/20 CI checks passed for <a href="https://github.com/godotengine/godot/pull/107101" target="_blank" rel="noopener noreferrer">PR #107101</a>.</figcaption>
+  </figure>
+  <figure>
+    <img src="/images/projects/godot-case-study/pr-related/107296CIpassed.png" alt="20/20 CI checks passed for PR #107296" class="content-media" loading="lazy" />
+    <figcaption>20/20 CI checks passed for <a href="https://github.com/godotengine/godot/pull/107296" target="_blank" rel="noopener noreferrer">PR #107296</a>.</figcaption>
   </figure>
 </div>
 
-That collaboration loop is a key reason this belongs in a portfolio: it reflects production-style engineering constraints, not just local experimentation.
-
-## Other Attempts
-
-I opened additional exploratory contributions that did not progress to merge. I keep them out of the headline list, but they remain valuable evidence of workflow maturity:
-- I can scope work, test assumptions, and identify when a direction is not yet maintainer-ready.
-- I treat unsuccessful attempts as signal for better system understanding, not as throwaway effort.
+Both PRs survived CI and received triage from multiple core team members — demonstrating production-style collaboration: responding to maintainer feedback, aligning with codebase conventions, and coordinating across an active contributor pipeline.
 
 ## Takeaway
 
-This project supports my gameplay engineer positioning with evidence in three dimensions:
-- **C++ implementation** in a production-grade engine
-- **Large codebase comprehension** through reverse-engineering artifacts and targeted tracing
-- **Design capability** by translating UX/tooling pain points into maintainable, reviewable changes
+Navigating a 1M+ line C++ codebase cold is essentially the same problem as debugging an unfamiliar gameplay system mid-production: you cannot read everything, so you have to model the system, form a falsifiable hypothesis, and trace only what matters. That discipline is what made both PRs tractable.
+
+The more interesting signal for me wasn't the code diff itself — it was realizing that the skills a gameplay engineer uses to reason about runtime behavior (state machines, event dispatch, rendering feedback loops) transfer directly to editor tooling. The domain changes; the mental model doesn't.
+
+Both PRs are still open. Open source moves at its own pace, and milestone targeting and cherry-pick labels are signs the work is in the pipeline — not signs it stalled. What I walked away with is the confidence that I can contribute meaningfully to any large C++ codebase given enough time to model it first.
