@@ -328,11 +328,12 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     font-size: 0.9rem;
   }
   .prose-portfolio :global(th) {
-    font-family: var(--font-display);
-    font-size: 10px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.55);
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     text-align: left;
@@ -345,6 +346,56 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
   }
   .prose-portfolio :global(tr:last-child td) {
     border-bottom: none;
+  }
+  .prose-portfolio :global(.build-matrix table) {
+    text-align: center;
+  }
+  .prose-portfolio :global(.build-matrix th),
+  .prose-portfolio :global(.build-matrix td) {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .prose-portfolio :global(.build-matrix thead th) {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .prose-portfolio :global(.build-matrix tbody th) {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.6rem 0.75rem;
+  }
+  .prose-portfolio :global(.build-matrix tr:last-child th),
+  .prose-portfolio :global(.build-matrix tr:last-child td) {
+    border-bottom: none;
+  }
+  .prose-portfolio :global(.build-matrix td:first-child) {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.55);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .prose-portfolio :global(.build-matrix tr:last-child td:first-child) {
+    border-bottom: none;
+  }
+  .prose-portfolio :global(.build-matrix td:first-child strong) {
+    font-weight: 600;
+  }
+  .prose-portfolio :global(.th-sub) {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.38);
+    margin-top: 0.2rem;
   }
   .prose-portfolio :global(.content-media) {
     width: 100%;
@@ -530,6 +581,33 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
   .prose-portfolio :global(.va-grid-carousel-dot.is-active) {
     background: #4a9eff;
     border-color: #4a9eff;
+  }
+  .prose-portfolio :global(.va-standalone-figure) {
+    margin: 1.25rem 0 2rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .prose-portfolio :global(.va-standalone-zoom) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: 100%;
+    display: block;
+    cursor: zoom-in;
+  }
+  .prose-portfolio :global(.va-standalone-zoom .content-media) {
+    margin: 0;
+  }
+  .prose-portfolio :global(.va-standalone-figure figcaption) {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-muted) 82%, #fff 18%);
+    text-align: center;
+  }
+  :global(.va-lightbox.is-standalone .va-lightbox-controls) {
+    display: none;
   }
   :global(.va-lightbox) {
     position: fixed;
@@ -1000,7 +1078,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     };
 
     const closeLightbox = () => {
-      lightbox.classList.remove('is-open');
+      lightbox.classList.remove('is-open', 'is-standalone');
       document.body.style.overflow = '';
       lightbox.style.removeProperty('--va-lightbox-height');
       states.forEach((state) => {
@@ -1209,6 +1287,52 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 
     window.addEventListener('resize', () => {
       states.forEach((state) => state.ensureStableHeight());
+    });
+
+    // ── Standalone zoomable images (outside carousels) ──────────────
+    const syncStandaloneHeight = () => {
+      if (!lightboxImage) return;
+      const frame = lightbox.querySelector<HTMLElement>('.va-lightbox-frame');
+      if (!frame) return;
+      const frameWidth = Math.min(1200, window.innerWidth * 0.96) - 28;
+      const maxSpace = window.innerHeight * 0.92 - 150;
+      if (lightboxImage.naturalWidth > 0 && lightboxImage.naturalHeight > 0) {
+        const rendered = (frameWidth * lightboxImage.naturalHeight) / lightboxImage.naturalWidth;
+        const clamped = Math.min(Math.max(rendered, 280), Math.max(280, maxSpace));
+        lightbox.style.setProperty('--va-lightbox-height', `${Math.round(clamped)}px`);
+      }
+    };
+
+    const standaloneZoomBtns = document.querySelectorAll<HTMLButtonElement>('.va-standalone-zoom');
+    standaloneZoomBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const src = btn.dataset.lightboxSrc ?? btn.querySelector('img')?.getAttribute('src') ?? '';
+        const img = btn.querySelector<HTMLImageElement>('img');
+        const caption = btn.closest('figure')?.querySelector('figcaption')?.textContent?.trim() ?? '';
+        if (!src || !lightboxImage) return;
+        const normalizedSrc = src.startsWith(`${basePath}/`) || src === basePath ? src : `${basePath}${src}`;
+        lightboxImage.src = normalizedSrc;
+        lightboxImage.alt = img?.alt ?? '';
+        lightboxImage.classList.remove('va-slide-in-right', 'va-slide-in-left');
+        if (lightboxCaption) lightboxCaption.textContent = caption;
+        if (lightboxDotsWrap) lightboxDotsWrap.innerHTML = '';
+        states.forEach((s) => s.stopAutoplay());
+        activeLightboxState = null;
+        lightbox.style.removeProperty('--va-lightbox-height');
+        lightbox.classList.add('is-open', 'is-standalone');
+        document.body.style.overflow = 'hidden';
+        if (lightboxImage.complete && lightboxImage.naturalWidth > 0) {
+          syncStandaloneHeight();
+        } else {
+          lightboxImage.addEventListener('load', syncStandaloneHeight, { once: true });
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (activeLightboxState === null && lightbox.classList.contains('is-open')) {
+        syncStandaloneHeight();
+      }
     });
   }
 </script>
