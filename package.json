@@ -1,6 +1,6 @@
 {
-  "name": "aeon-space-agency-template",
-  "description": "An Astro template for a cinematic space-agency landing page with markdown content collections, responsive layouts, and light/dark themes.",
+  "name": "peter-xie-portfolio",
+  "description": "A personal portfolio built with Astro, showcasing gameplay systems projects, philosophy, and contact information.",
   "type": "module",
   "version": "0.1.0",
   "license": "MIT",
@@ -20,7 +20,7 @@
   },
   "keywords": [
     "astro",
-    "astro-template",
+    "portfolio",
     "tailwindcss",
     "react",
     "framer-motion",

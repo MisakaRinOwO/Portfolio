@@ -1,4 +1,4 @@
-export const aeonEase = [0.22, 1, 0.36, 1] as const;
+export const portfolioEase = [0.22, 1, 0.36, 1] as const;
 
 export const inViewViewport = {
   once: true,
@@ -7,5 +7,5 @@ export const inViewViewport = {
 
 export const fadeUpTransition = {
   duration: 0.85,
-  ease: aeonEase,
+  ease: portfolioEase,
 } as const;

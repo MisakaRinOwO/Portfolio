@@ -2,7 +2,7 @@ import { MotionConfig, motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 import type { FooterContact, FooterMeta, NavLink } from '../data/site';
-import { aeonEase } from './motion';
+import { portfolioEase } from './motion';
 
 interface FooterSectionProps {
   directory: NavLink[];
@@ -21,7 +21,7 @@ export default function FooterSection({ directory, meta, policies }: FooterSecti
         ref={ref}
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.85, ease: aeonEase }}
+        transition={{ duration: 0.85, ease: portfolioEase }}
         className="bg-footer-bg py-18 sm:py-22"
       >
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">

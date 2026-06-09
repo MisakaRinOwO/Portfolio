@@ -24,7 +24,7 @@ export default function BrandLogo({
   className = '',
   imageClassName = '',
   kind = 'wordmark',
-  label = 'AEON / SPACE',
+  label = 'Peter Xie / Portfolio',
   tone = 'theme',
 }: BrandLogoProps) {
   const sources = logoSources[kind];

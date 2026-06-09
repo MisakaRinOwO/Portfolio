@@ -123,6 +123,8 @@ Portfolio/
 
 ---
 
-## Credits
+## Ref
 
-Built on top of the [**AEON / SPACE**](https://github.com/lauroguedes/aeon-space-agency) Astro template by [Lauro Guedes](https://github.com/lauroguedes), licensed under the [MIT License](https://opensource.org/licenses/MIT). The original template provided the Astro + React + Tailwind + Framer Motion project scaffold, layout system, and content collection architecture; all content, design customisation, and project-specific features are original work.
+This portfolio started from the [**AEON / SPACE**](https://github.com/lauroguedes/aeon-space-agency) Astro template by [Lauro Guedes](https://github.com/lauroguedes), licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+The original scaffold provided the Astro + React + Tailwind + Framer Motion project structure and content collection setup. The current content, layout direction, copywriting, and portfolio-specific features are customized for Peter Xie.

@@ -1,0 +1,296 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const tocEntries = [
+  { id: 'why-i-make-games', label: 'Why I Make Games' },
+  { id: 'journey', label: 'Journey' },
+  { id: 'creation', label: 'Creation' },
+  { id: 'understanding', label: 'Understanding' },
+  { id: 'design-philosophy', label: 'Design Philosophy' },
+  { id: 'role-fit', label: 'Role Fit' },
+];
+---
+
+<SiteLayout
+  title="Philosophy | Peter Xie"
+  description="Why I make games: exploring meaning through systems, discovery, and player-authored stories."
+>
+  <main class="mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <section class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+      <div>
+        <p class="font-display text-[11px] uppercase tracking-[0.28em] text-accent-blue">Philosophy</p>
+        <h1 class="mt-5 break-words font-display text-[2.6rem] font-bold leading-none text-white sm:text-5xl lg:text-6xl">
+          Why I Make Games
+        </h1>
+        <p class="mt-6 max-w-3xl text-[1.1rem] leading-8 text-white/65">
+          I build systems that help players discover their own answers.
+          My work centers on simulation, modular design, and readable feedback loops.
+          As a Gameplay Programmer with a technical systems design focus, I turn abstract ideas into decisions the player can feel and test.
+        </p>
+      </div>
+
+      <aside class="border border-white/10 bg-white/[0.03] p-6">
+        <p class="font-display text-[12px] uppercase tracking-[0.2em] text-white/40">Profile Info</p>
+        <dl class="mt-5 space-y-5">
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Role</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">Gameplay Programmer · Technical Systems Design</dd>
+          </div>
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Core Focus</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">Simulation · modular systems · emergent gameplay</dd>
+          </div>
+          <div>
+            <dt class="font-display text-[11px] uppercase tracking-[0.18em] text-warm-gold">Creative Themes</dt>
+            <dd class="mt-2 text-[1.02rem] text-white/72">Journey · creation · understanding</dd>
+          </div>
+        </dl>
+      </aside>
+    </section>
+
+    <div class="mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:items-start lg:gap-10">
+      <aside
+        id="toc-aside"
+        class="fixed left-0 right-0 z-40 bg-page-bg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:static lg:sticky lg:top-28 lg:order-last lg:mb-0"
+        aria-label="Page contents"
+      >
+        <button
+          id="toc-toggle"
+          class="flex w-full items-center justify-between border border-white/10 bg-white/[0.02] px-4 py-3 text-left transition-colors hover:border-accent-blue/30"
+          aria-expanded="true"
+          aria-controls="toc-list"
+        >
+          <span class="font-display text-[10px] uppercase tracking-[0.2em] text-white/40">On This Page</span>
+          <svg id="toc-chevron" class="h-3.5 w-3.5 text-white/30 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <nav id="toc-list" class="border border-t-0 border-white/10 bg-white/[0.015] px-4 py-3">
+          <ul class="space-y-0.5">
+            {tocEntries.map((entry) => (
+              <li>
+                <a
+                  href={`#${entry.id}`}
+                  class="toc-link block py-1.5 font-display text-[10.5px] uppercase tracking-[0.14em] text-white/40 transition-colors duration-150 hover:text-accent-blue"
+                  data-slug={entry.id}
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      <div id="toc-spacer" class="lg:hidden"></div>
+
+      <div>
+        <section id="why-i-make-games" class="border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Why I Make Games
+          </h2>
+          <blockquote class="mt-6 border border-accent-blue/25 bg-accent-blue/[0.06] p-5 sm:p-6">
+            <p class="text-[1.02rem] leading-8 text-white/80">
+              Give humanity fire, and they may chart the cosmos. Give players tools, and they may shape new worlds.
+            </p>
+          </blockquote>
+          <p class="mt-5 text-[1.02rem] leading-8 text-white/62">
+            The portfolio shows what I can build.
+            This page explains why these systems exist in the first place.
+            Across my projects, I keep returning to meaning, choice, and player-authored stories.
+          </p>
+          <p class="mt-5 text-[0.98rem] leading-7 text-white/60">
+            I care less about scripting one intended feeling than about building rule-sets that support interpretation.
+            The core objective is not just a loop, but a question the player can answer through play.
+          </p>
+        </section>
+
+        <section id="journey" class="mt-10 border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Journey
+          </h2>
+          <p class="mt-5 text-[0.98rem] leading-7 text-white/60">
+            I am drawn to journey-driven structures not because maps are large, but because journeys naturally surface
+            goals, trade-offs, growth, and doubt. Endpoints matter, but I care more about what happens on the way there:
+            the moments where players revise their priorities and redefine what progress means.
+          </p>
+        </section>
+
+        <section id="creation" class="mt-10 border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Creation
+          </h2>
+          <p class="mt-5 text-[0.98rem] leading-7 text-white/60">
+            I enjoy designing systems, but the deeper interest is what those systems become once they leave the designer's
+            control. The gap between intent and outcome creates the most compelling tension: creator and creation,
+            plan and consequence, architecture and emergence.
+          </p>
+        </section>
+
+        <section id="understanding" class="mt-10 border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Understanding
+          </h2>
+          <p class="mt-5 text-[0.98rem] leading-7 text-white/60">
+            Many conflicts are not produced by malice, but by incomplete information.
+            I am interested in mechanics that let players gradually reconstruct context,
+            reinterpret earlier assumptions, and build empathy through participation rather than exposition.
+          </p>
+        </section>
+
+        <section id="design-philosophy" class="mt-10 border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Design Philosophy
+          </h2>
+
+          <h3 class="mt-8 font-display text-[12px] uppercase tracking-[0.16em] text-white/78">Discovery Through Systems</h3>
+          <p class="mt-3 text-[0.98rem] leading-7 text-white/60">
+            Tell players what a tool does, then let them discover what it can become.
+            I favor modular, compositional design where simple building blocks combine into outcomes
+            the player was never explicitly instructed to produce.
+          </p>
+
+          <h3 class="mt-8 font-display text-[12px] uppercase tracking-[0.16em] text-white/78">Simulation First</h3>
+          <p class="mt-3 text-[0.98rem] leading-7 text-white/60">
+            Rules should be testable and observable. If behavior cannot be measured,
+            it cannot be tuned reliably as scale and complexity increase.
+          </p>
+
+          <h3 class="mt-8 font-display text-[12px] uppercase tracking-[0.16em] text-white/78">Modularity First</h3>
+          <p class="mt-3 text-[0.98rem] leading-7 text-white/60">
+            Start with foundational parts, then let composition unlock depth.
+            The player should feel that systems are understandable at first glance,
+            yet rich enough to reward experimentation and unconventional thinking.
+          </p>
+
+          <h3 class="mt-8 font-display text-[12px] uppercase tracking-[0.16em] text-white/78">Emergence First</h3>
+          <p class="mt-3 text-[0.98rem] leading-7 text-white/60">
+            The most memorable moments are often player-authored, not pre-scripted.
+            I design for meaningful choices, readable consequences, and spaces where teams can produce
+            their own stories in real time.
+          </p>
+
+          <h3 class="mt-8 font-display text-[12px] uppercase tracking-[0.16em] text-white/78">Reference Lineage</h3>
+          <p class="mt-3 text-[0.98rem] leading-7 text-white/60">
+            Systems that strongly influence this direction include EVE Online, Oxygen Not Included,
+            Cosmoteer, Desynced, and Astroneer.
+          </p>
+        </section>
+
+        <section id="role-fit" class="mt-10 border border-white/10 bg-white/[0.02] p-7 sm:p-9">
+          <h2 class="border-b border-white/8 pb-2 font-display text-[1.15rem] font-bold uppercase tracking-[0.12em] text-white/90">
+            Role Fit
+          </h2>
+          <p class="mt-5 text-[1rem] leading-8 text-white/60">
+            I work best at the intersection of gameplay engineering and systems design.
+            In practice, this includes gameplay implementation, balancing iteration,
+            and system architecture that supports both strategic depth and player-authored experiences.
+          </p>
+          <p class="mt-5 text-[0.96rem] leading-7 text-white/55">
+            Best fit: Gameplay Programmer or Technical System Designer in teams focused on
+            long-term worldbuilding, co-op storytelling, and emergent play.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+</SiteLayout>
+
+<style>
+  .toc-collapsed {
+    display: none;
+  }
+
+  .toc-chevron-collapsed {
+    transform: rotate(-90deg);
+  }
+
+  .toc-active {
+    color: #4a9eff;
+  }
+</style>
+
+<script is:inline>
+  const toggle = document.getElementById('toc-toggle');
+  const list = document.getElementById('toc-list');
+  const chevron = document.getElementById('toc-chevron');
+
+  if (toggle && list && chevron) {
+    const isDesktop = () => window.innerWidth >= 1024;
+    if (!isDesktop()) {
+      list.classList.add('toc-collapsed');
+      chevron.classList.add('toc-chevron-collapsed');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', () => {
+      const collapsed = list.classList.toggle('toc-collapsed');
+      chevron.classList.toggle('toc-chevron-collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+    });
+  }
+
+  const tocLinks = document.querySelectorAll('a.toc-link');
+  if (tocLinks.length > 0) {
+    const headingEls = Array.from(tocLinks)
+      .map((a) => document.getElementById(a.dataset.slug ?? ''))
+      .filter(Boolean);
+
+    const setActive = (id) => {
+      tocLinks.forEach((a) => {
+        a.classList.toggle('toc-active', a.dataset.slug === id);
+      });
+    };
+
+    const getSpyOffset = () => {
+      const headerEl = document.querySelector('[data-site-header]');
+      const tocAsideEl = document.getElementById('toc-aside');
+      const headerH = headerEl ? headerEl.offsetHeight : 0;
+      const mobileTocH = window.innerWidth < 1024 && tocAsideEl ? tocAsideEl.offsetHeight : 0;
+      return headerH + mobileTocH + 24;
+    };
+
+    const updateActiveByScroll = () => {
+      if (headingEls.length === 0) return;
+      const offset = getSpyOffset();
+      let currentId = headingEls[0].id;
+
+      for (const el of headingEls) {
+        if (el.getBoundingClientRect().top - offset <= 0) {
+          currentId = el.id;
+        } else {
+          break;
+        }
+      }
+
+      setActive(currentId);
+    };
+
+    let spyTick = false;
+    const onSpyChange = () => {
+      if (spyTick) return;
+      spyTick = true;
+      window.requestAnimationFrame(() => {
+        updateActiveByScroll();
+        spyTick = false;
+      });
+    };
+
+    window.addEventListener('scroll', onSpyChange, { passive: true });
+    window.addEventListener('resize', onSpyChange);
+    updateActiveByScroll();
+  }
+
+  const tocAside = document.getElementById('toc-aside');
+  const tocSpacer = document.getElementById('toc-spacer');
+  const siteHeader = document.querySelector('[data-site-header]');
+  if (tocAside && siteHeader) {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    if (mq.matches) {
+      const headerH = siteHeader.offsetHeight;
+      tocAside.style.top = `${headerH}px`;
+      if (tocSpacer) tocSpacer.style.height = `${tocAside.offsetHeight}px`;
+    }
+  }
+</script>
