@@ -633,8 +633,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
   }
   :global(.va-lightbox-image) {
     width: 100%;
-    height: var(--va-lightbox-height, calc(92vh - 9rem));
-    max-height: calc(92vh - 9rem);
+    height: var(--va-lightbox-height, calc(92vh - 13rem));
+    max-height: calc(92vh - 13rem);
     object-fit: contain;
     display: block;
     background: rgba(255, 255, 255, 0.02);
@@ -896,21 +896,43 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       });
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length > 0) {
-          // Pick the topmost visible heading
-          const topmost = visible.reduce((a, b) =>
-            a.boundingClientRect.top < b.boundingClientRect.top ? a : b
-          );
-          setActive((topmost.target as HTMLElement).id);
-        }
-      },
-      { rootMargin: '0px 0px -60% 0px', threshold: 0 }
-    );
+    const getSpyOffset = () => {
+      const headerEl = document.querySelector<HTMLElement>('[data-site-header]');
+      const tocAsideEl = document.getElementById('toc-aside') as HTMLElement | null;
+      const headerH = headerEl?.offsetHeight ?? 0;
+      const mobileTocH = window.innerWidth < 1024 ? (tocAsideEl?.offsetHeight ?? 0) : 0;
+      return headerH + mobileTocH + 24;
+    };
 
-    headingEls.forEach((el) => observer.observe(el));
+    const updateActiveByScroll = () => {
+      if (headingEls.length === 0) return;
+      const offset = getSpyOffset();
+      let currentId = headingEls[0].id;
+
+      for (const el of headingEls) {
+        if (el.getBoundingClientRect().top - offset <= 0) {
+          currentId = el.id;
+        } else {
+          break;
+        }
+      }
+
+      setActive(currentId);
+    };
+
+    let spyTick = false;
+    const onSpyChange = () => {
+      if (spyTick) return;
+      spyTick = true;
+      window.requestAnimationFrame(() => {
+        updateActiveByScroll();
+        spyTick = false;
+      });
+    };
+
+    window.addEventListener('scroll', onSpyChange, { passive: true });
+    window.addEventListener('resize', onSpyChange);
+    updateActiveByScroll();
   }
 
   // Shared lock: set by toggle click to ignore the micro-scroll that follows
@@ -1014,6 +1036,18 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 
     const isLightboxOpen = () => lightbox.classList.contains('is-open');
 
+    const stopAllAutoplay = () => {
+      states.forEach((state) => state.stopAutoplay());
+    };
+
+    const restartEligibleAutoplay = () => {
+      states.forEach((state) => {
+        if (!state.carousel.matches(':hover') && !state.carousel.contains(document.activeElement)) {
+          state.restartAutoplay();
+        }
+      });
+    };
+
     const getSlideData = (state: CarouselState) => {
       const slide = state.slides[state.index];
       const btn = slide.querySelector<HTMLButtonElement>('.va-grid-carousel-zoom');
@@ -1057,8 +1091,20 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       const frame = lightbox.querySelector<HTMLElement>('.va-lightbox-frame');
       if (!frame) return;
 
+      const getLightboxMaxImageSpace = () => {
+        const frameStyles = window.getComputedStyle(frame);
+        const padTop = parseFloat(frameStyles.paddingTop || '0') || 0;
+        const padBottom = parseFloat(frameStyles.paddingBottom || '0') || 0;
+        const rowGap = parseFloat(frameStyles.rowGap || frameStyles.gap || '0') || 0;
+        const closeH = closeLightboxBtn?.offsetHeight ?? 0;
+        const captionH = lightboxCaption?.offsetHeight ?? 0;
+        const controlsH = lightbox.querySelector<HTMLElement>('.va-lightbox-controls')?.offsetHeight ?? 0;
+        const reserved = padTop + padBottom + closeH + captionH + controlsH + rowGap * 3 + 24;
+        return Math.max(240, window.innerHeight * 0.92 - reserved);
+      };
+
       const frameWidth = Math.min(1200, window.innerWidth * 0.96) - 28;
-      const maxSpace = window.innerHeight * 0.92 - 150;
+      const maxSpace = getLightboxMaxImageSpace();
       let target = 0;
 
       state.images.forEach((img) => {
@@ -1081,13 +1127,20 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       lightbox.classList.remove('is-open', 'is-standalone');
       document.body.style.overflow = '';
       lightbox.style.removeProperty('--va-lightbox-height');
-      states.forEach((state) => {
-        if (!state.carousel.matches(':hover') && !state.carousel.contains(document.activeElement)) {
-          state.restartAutoplay();
-        }
-      });
+      restartEligibleAutoplay();
       activeLightboxState = null;
     };
+
+    lightbox.addEventListener('pointerenter', stopAllAutoplay);
+    lightbox.addEventListener('focusin', stopAllAutoplay);
+    lightbox.addEventListener('pointerleave', () => {
+      if (isLightboxOpen()) return;
+      restartEligibleAutoplay();
+    });
+    lightbox.addEventListener('focusout', () => {
+      if (isLightboxOpen()) return;
+      restartEligibleAutoplay();
+    });
 
     closeLightboxBtn?.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (event) => {
@@ -1254,7 +1307,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       zoomButtons.forEach((btn, i) => {
         btn.addEventListener('click', () => {
           setSlide(i);
-          states.forEach((state) => state.stopAutoplay());
+          stopAllAutoplay();
           activeLightboxState = state;
           syncLightboxHeight(state);
           renderLightboxContent(state);
@@ -1263,6 +1316,9 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
         });
       });
 
+      carousel.addEventListener('pointerenter', stopAutoplay);
+      carousel.addEventListener('pointerleave', restartAutoplay);
+      // Fallback for environments that do not emit pointer events consistently.
       carousel.addEventListener('mouseenter', stopAutoplay);
       carousel.addEventListener('mouseleave', restartAutoplay);
       carousel.addEventListener('focusin', stopAutoplay);
@@ -1294,8 +1350,18 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       if (!lightboxImage) return;
       const frame = lightbox.querySelector<HTMLElement>('.va-lightbox-frame');
       if (!frame) return;
+
+      const frameStyles = window.getComputedStyle(frame);
+      const padTop = parseFloat(frameStyles.paddingTop || '0') || 0;
+      const padBottom = parseFloat(frameStyles.paddingBottom || '0') || 0;
+      const rowGap = parseFloat(frameStyles.rowGap || frameStyles.gap || '0') || 0;
+      const closeH = closeLightboxBtn?.offsetHeight ?? 0;
+      const captionH = lightboxCaption?.offsetHeight ?? 0;
+      const controlsH = lightbox.querySelector<HTMLElement>('.va-lightbox-controls')?.offsetHeight ?? 0;
+      const reserved = padTop + padBottom + closeH + captionH + controlsH + rowGap * 3 + 24;
+
       const frameWidth = Math.min(1200, window.innerWidth * 0.96) - 28;
-      const maxSpace = window.innerHeight * 0.92 - 150;
+      const maxSpace = Math.max(240, window.innerHeight * 0.92 - reserved);
       if (lightboxImage.naturalWidth > 0 && lightboxImage.naturalHeight > 0) {
         const rendered = (frameWidth * lightboxImage.naturalHeight) / lightboxImage.naturalWidth;
         const clamped = Math.min(Math.max(rendered, 280), Math.max(280, maxSpace));
@@ -1316,7 +1382,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
         lightboxImage.classList.remove('va-slide-in-right', 'va-slide-in-left');
         if (lightboxCaption) lightboxCaption.textContent = caption;
         if (lightboxDotsWrap) lightboxDotsWrap.innerHTML = '';
-        states.forEach((s) => s.stopAutoplay());
+        stopAllAutoplay();
         activeLightboxState = null;
         lightbox.style.removeProperty('--va-lightbox-height');
         lightbox.classList.add('is-open', 'is-standalone');
