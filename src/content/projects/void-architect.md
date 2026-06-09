@@ -101,6 +101,12 @@ Logs are developer tools — replays are player feedback. Building a visual repl
 
 Across all four choices, the underlying intent is the same: make every outcome readable enough that players can adapt based on what they observe, not just guess.
 
+### Thematic Context
+
+While this prototype is presented as a systems project, it also carries a longer-term creative direction: creation, responsibility, and player-authored outcomes.
+The core loop asks the player to build under constraints, face consequences, then reinterpret those consequences through replay and adaptation.
+That pattern is intentionally aligned with a broader design goal across future projects: systems should not only produce optimal answers, but also expose meaningful questions.
+
 ---
 
 ## Key Design Decisions
