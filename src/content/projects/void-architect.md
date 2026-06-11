@@ -87,6 +87,10 @@ After the fight, players can open replay and inspect per-tick HP/Shield + player
 
 Why each system was designed this way:
 
+This prototype is step 3 in the same progression and intentionally references Project Summon rather than repeating the full timeline.
+
+Here, that scope-discipline foundation was pushed into gameplay-design-first execution: define player decisions first, then build systems for readable outcomes, faster balancing, and explicit trade-offs.
+
 **Why a Tick-Driven Simulation?**
 Real-time physics would make outcomes difficult to inspect and slow to balance. A virtual-second tick loop structures combat state updates into discrete, traceable steps — making outcomes analyzable, balance iteration reproducible, and bugs easier to isolate.
 

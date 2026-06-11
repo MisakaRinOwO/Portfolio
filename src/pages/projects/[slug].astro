@@ -15,6 +15,23 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const d = entry.data;
 const tocHeadings = headings.filter((h) => h.depth === 2);
+
+const toYoutubeEmbedUrl = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    const videoId = parsed.searchParams.get('v') || parsed.pathname.split('/').filter(Boolean).pop();
+    if (parsed.hostname.includes('youtube.com') && videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (parsed.hostname.includes('youtu.be') && videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  } catch {
+    // Fall through and use the original URL when it cannot be parsed.
+  }
+
+  return url;
+};
 ---
 
 <SiteLayout title={`${d.title} | Peter Xie`} description={d.summary}>
@@ -107,7 +124,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
       </div>
 
       <!-- Hero Media -->
-      {(d.demoVideo || d.screenshots.length > 0) && (
+      {(d.demoVideo || d.links.video || d.screenshots.length > 0 || d.heroVideoPlaceholder) && (
         <div class="mt-10">
           {d.demoVideo ? (
             <div data-demo-video-block class="space-y-3">
@@ -137,6 +154,34 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
                 )}
               </div>
             </div>
+          ) : d.links.video ? (
+            <div class="space-y-3">
+              <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black" data-hero-video-media>
+                <iframe
+                  src={`${toYoutubeEmbedUrl(d.links.video)}?rel=0&modestbranding=1&playsinline=1`}
+                  title={`${d.title} hero video`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  class="h-full w-full"
+                ></iframe>
+              </div>
+            </div>
+          ) : d.heroVideoPlaceholder ? (
+            <figure class="space-y-3">
+              <div class="relative aspect-video w-full overflow-hidden border border-white/10 bg-black/60">
+                <img
+                  src={d.coverImage.startsWith('/') ? `${base}${d.coverImage}` : d.coverImage}
+                  alt=""
+                  class="absolute inset-0 h-full w-full object-cover opacity-20 blur-[2px]"
+                  aria-hidden="true"
+                />
+                <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,8,12,0.25),rgba(5,8,12,0.78))]"></div>
+                <div class="relative flex h-full flex-col items-center justify-center px-6 text-center">
+                  <span class="font-display text-[11px] uppercase tracking-[0.22em] text-accent-blue">Video Placeholder</span>
+                  <p class="mt-4 max-w-2xl text-[1rem] leading-7 text-white/68">{d.heroVideoPlaceholder}</p>
+                </div>
+              </div>
+            </figure>
           ) : (
             <div class={`grid gap-4 ${d.screenshots.length === 1 ? '' : 'sm:grid-cols-2'}`}>
               {d.screenshots.map((src, i) => (
@@ -438,10 +483,60 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     justify-self: center;
     max-height: 210px;
   }
+
+  .prose-portfolio :global(.ownership-system-grid) {
+    margin-top: 0.45rem;
+    gap: 1.05rem;
+  }
+
+  .prose-portfolio :global(.ownership-system-card) {
+    position: relative;
+    margin: 0;
+    padding: 1.05rem 1.1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--line-subtle);
+    border-left: 0.24rem solid color-mix(in srgb, var(--color-accent-blue) 68%, #ffffff 32%);
+    background: linear-gradient(150deg, rgba(74, 158, 255, 0.12), rgba(74, 158, 255, 0.03));
+    box-shadow: 0 10px 26px rgba(3, 8, 14, 0.2);
+  }
+
+  .prose-portfolio :global(.ownership-system-card > p) {
+    margin: 0;
+  }
+
+  .prose-portfolio :global(.ownership-system-card > p + p) {
+    margin-top: 0.75rem;
+  }
+
+  .prose-portfolio :global(.ownership-kicker) {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.36rem;
+    padding: 0.13rem 0.44rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-accent-blue) 52%, transparent);
+    background: color-mix(in srgb, var(--color-accent-blue) 18%, transparent);
+    color: var(--body-strong);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
   @media (max-width: 900px) {
     .prose-portfolio :global(.media-grid-2),
     .prose-portfolio :global(.media-grid-3) {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .prose-portfolio :global(.ownership-system-grid) {
+      gap: 0.8rem;
+    }
+
+    .prose-portfolio :global(.ownership-system-card) {
+      padding: 0.9rem;
+      border-left-width: 0.2rem;
     }
   }
   .prose-portfolio :global(.media-placeholder) {
@@ -990,7 +1085,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 
   // ── Core Systems carousel: stable height + transitions + lightbox ─
   const carousels = document.querySelectorAll<HTMLElement>('[data-va-carousel]');
-  if (carousels.length > 0) {
+  const standaloneZoomBtns = document.querySelectorAll<HTMLButtonElement>('.va-standalone-zoom');
+  if (carousels.length > 0 || standaloneZoomBtns.length > 0) {
     const lightbox = document.createElement('div');
     lightbox.className = 'va-lightbox';
     lightbox.innerHTML = `
@@ -1346,7 +1442,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
     });
 
     // ── Standalone zoomable images (outside carousels) ──────────────
-    const syncStandaloneHeight = () => {
+    const applyStandaloneHeight = (width: number, height: number) => {
+      if (!lightboxImage || width <= 0 || height <= 0) return;
       if (!lightboxImage) return;
       const frame = lightbox.querySelector<HTMLElement>('.va-lightbox-frame');
       if (!frame) return;
@@ -1362,14 +1459,18 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 
       const frameWidth = Math.min(1200, window.innerWidth * 0.96) - 28;
       const maxSpace = Math.max(240, window.innerHeight * 0.92 - reserved);
+      const rendered = (frameWidth * height) / width;
+      const clamped = Math.min(Math.max(rendered, 280), Math.max(280, maxSpace));
+      lightbox.style.setProperty('--va-lightbox-height', `${Math.round(clamped)}px`);
+    };
+
+    const syncStandaloneHeight = () => {
+      if (!lightboxImage) return;
       if (lightboxImage.naturalWidth > 0 && lightboxImage.naturalHeight > 0) {
-        const rendered = (frameWidth * lightboxImage.naturalHeight) / lightboxImage.naturalWidth;
-        const clamped = Math.min(Math.max(rendered, 280), Math.max(280, maxSpace));
-        lightbox.style.setProperty('--va-lightbox-height', `${Math.round(clamped)}px`);
+        applyStandaloneHeight(lightboxImage.naturalWidth, lightboxImage.naturalHeight);
       }
     };
 
-    const standaloneZoomBtns = document.querySelectorAll<HTMLButtonElement>('.va-standalone-zoom');
     standaloneZoomBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const src = btn.dataset.lightboxSrc ?? btn.querySelector('img')?.getAttribute('src') ?? '';
@@ -1384,7 +1485,14 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
         if (lightboxDotsWrap) lightboxDotsWrap.innerHTML = '';
         stopAllAutoplay();
         activeLightboxState = null;
-        lightbox.style.removeProperty('--va-lightbox-height');
+
+        // Pre-size with the already-loaded inline image to avoid visible resize lag.
+        if ((img?.naturalWidth ?? 0) > 0 && (img?.naturalHeight ?? 0) > 0) {
+          applyStandaloneHeight(img!.naturalWidth, img!.naturalHeight);
+        } else {
+          lightbox.style.removeProperty('--va-lightbox-height');
+        }
+
         lightbox.classList.add('is-open', 'is-standalone');
         document.body.style.overflow = 'hidden';
         if (lightboxImage.complete && lightboxImage.naturalWidth > 0) {

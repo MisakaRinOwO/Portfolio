@@ -13,6 +13,7 @@ highlights:
   - "Graded hit windows (Perfect / Great / Good / Miss) with combo and score multiplier system"
   - "FMOD integration for low-latency audio playback and real-time beat detection"
   - "Configurable lane count and note skin system for rapid visual iteration"
+  - "Key project lesson: over-investing in judgement-mechanic depth early prevented completion of a full playable loop"
 coverImage: "/images/project-placeholder.svg"
 screenshots: []
 links:
@@ -35,6 +36,8 @@ Rhythm games look simple but hide surprisingly tricky engineering: the window be
 ## Key Design Decisions
 
 Using DSP time for evaluation (instead of Unity's `Time.time`) was the single most impactful technical decision. Early builds used game time and felt inconsistent. Switching to DSP time immediately made the prototype feel responsive and predictable.
+
+At the same time, this project taught me a scope lesson: I went too deep on judgement implementation details too early (timeline + input-driven validation exploration) and did not complete a full gameplay loop at prototype stage. That lesson directly shaped how I approached my next project in UE5.
 
 ## What I'd Do Next
 
