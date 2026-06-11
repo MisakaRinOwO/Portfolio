@@ -153,6 +153,18 @@ const toYoutubeEmbedUrl = (url: string) => {
                   </video>
                 )}
               </div>
+              {d.demoVideoFallback && (
+                <div class="mt-2 flex justify-end">
+                  <button
+                    type="button"
+                    class="border border-accent-blue/55 bg-page-bg/65 px-3 py-1.5 font-display text-[10px] uppercase tracking-[0.14em] text-accent-blue transition-colors duration-200 hover:border-accent-blue hover:text-white"
+                    data-demo-fallback-trigger
+                    aria-label="Trouble loading? use local video"
+                  >
+                    TROUBLE LOADING? USE LOCAL VIDEO
+                  </button>
+                </div>
+              )}
             </div>
           ) : d.links.video ? (
             <div class="space-y-3">
@@ -909,31 +921,99 @@ const toYoutubeEmbedUrl = (url: string) => {
     const media = block.querySelector<HTMLElement>('[data-demo-media]');
     const iframe = block.querySelector<HTMLIFrameElement>('[data-demo-iframe]');
     const fallback = block.querySelector<HTMLVideoElement>('[data-demo-fallback]');
+    const fallbackTrigger = block.querySelector<HTMLButtonElement>('[data-demo-fallback-trigger]');
     if (!media || !iframe || !fallback) return;
 
     let resolved = false;
-    const revealFallback = () => {
-      if (resolved) return;
-      resolved = true;
-      iframe.classList.add('hidden');
-      fallback.classList.remove('hidden');
-      fallback.muted = false;
-      fallback.volume = 0.5;
+    let fallbackTimer = 0;
+
+    const clearHandlers = () => {
+      window.clearTimeout(fallbackTimer);
+      window.removeEventListener('message', onYouTubeMessage);
     };
 
     const markLoaded = () => {
       if (resolved) return;
       resolved = true;
+      clearHandlers();
     };
 
-    // If embed is blocked or never finishes, switch to local media.
-    const fallbackTimer = window.setTimeout(() => {
+    const applyFallbackAudioDefaults = () => {
+      fallback.removeAttribute('muted');
+      fallback.muted = false;
+      fallback.defaultMuted = false;
+      fallback.volume = 0.5;
+    };
+
+    fallback.addEventListener('loadedmetadata', () => {
+      applyFallbackAudioDefaults();
+    });
+
+    const revealFallback = (force = false) => {
+      if (resolved && !force) return;
+      resolved = true;
+      clearHandlers();
+      iframe.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      applyFallbackAudioDefaults();
+
+      // When user explicitly switches, try to start playback with sound.
+      if (force) {
+        void fallback.play().catch(() => {
+          // Ignore autoplay rejections; controls remain available for manual play.
+        });
+      }
+
+      if (fallbackTrigger) {
+        fallbackTrigger.textContent = 'Local Video Active';
+        fallbackTrigger.disabled = true;
+        fallbackTrigger.classList.add('opacity-60', 'cursor-default');
+      }
+    };
+
+    fallbackTrigger?.addEventListener('click', () => {
+      revealFallback(true);
+    });
+
+    const onYouTubeMessage = (event: MessageEvent) => {
+      if (event.source !== iframe.contentWindow) return;
+      if (typeof event.data !== 'string') return;
+
+      let payload: { event?: string } | null = null;
+      try {
+        payload = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      // Only treat as success when the player reports ready/state events.
+      if (payload?.event === 'onReady' || payload?.event === 'onStateChange') {
+        markLoaded();
+      }
+    };
+
+    window.addEventListener('message', onYouTubeMessage);
+
+    // If embed is blocked or never reaches a ready/state event, switch to local media.
+    fallbackTimer = window.setTimeout(() => {
       if (!resolved) revealFallback();
-    }, 5000);
+    }, 6500);
 
     iframe.addEventListener('load', () => {
-      // Set YouTube player to unmuted 50% volume once embed is ready.
+      // Register YouTube JS API listeners and set preferred volume.
       window.setTimeout(() => {
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'listening' }),
+          '*',
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onReady'] }),
+          '*',
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }),
+          '*',
+        );
         iframe.contentWindow?.postMessage(
           JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
           '*',
@@ -943,12 +1023,11 @@ const toYoutubeEmbedUrl = (url: string) => {
           '*',
         );
       }, 800);
-      window.clearTimeout(fallbackTimer);
-      markLoaded();
+
+      // Keep timer active. Load alone does not mean the video is playable.
     });
 
     iframe.addEventListener('error', () => {
-      window.clearTimeout(fallbackTimer);
       revealFallback();
     });
   });

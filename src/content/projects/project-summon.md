@@ -15,6 +15,7 @@ highlights:
   - "Local multiplayer join/selection flow with GameInstance-based cross-level persistence"
 coverImage: "/images/projects/project-summon/PS- PlayerHUDDesign.png"
 demoVideo: "https://www.youtube.com/embed/gYHEjQshulw"
+demoVideoFallback: "/images/projects/project-summon/PS- ProjectSummonWeek11Showcase.mp4"
 screenshots: []
 links:
   video: "https://www.youtube.com/watch?v=gYHEjQshulw"
@@ -47,18 +48,18 @@ Each run follows four steps:
 Start at the campfire hub and prepare gear/loadout.
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- TitleScreenOnePlayer.png" aria-label="Open title-screen class selection image in large view">
-<img src="/images/projects/project-summon/PS- TitleScreenOnePlayer.png" alt="Title-screen class selection and local player setup" class="content-media" loading="lazy" />
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_TitleScreenPlayerJoin.gif" aria-label="Open title-screen player join flow gif in large view">
+<img src="/images/projects/project-summon/PS_TitleScreenPlayerJoin.gif" alt="Title-screen player join and class-selection handoff" class="content-media" loading="lazy" />
 </button>
-<figcaption>Entry flow: local player setup and class-selection handoff at title screen.</figcaption>
+<figcaption>Entry flow: local player join and class-selection handoff at title screen.</figcaption>
 </figure>
 
 **2 - Encounter Entry**
 Enter prototype encounter rooms.
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- EncounterRoom.png" aria-label="Open encounter room flow image in large view">
-<img src="/images/projects/project-summon/PS- EncounterRoom.png" alt="Encounter room with active enemies before clear condition" class="content-media" loading="lazy" />
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_PlayersEnterRoom.gif" aria-label="Open encounter entry gif in large view">
+<img src="/images/projects/project-summon/PS_PlayersEnterRoom.gif" alt="Players entering encounter room and beginning room flow" class="content-media" loading="lazy" />
 </button>
 <figcaption>Encounter phase: room pressure begins with enemy spawn and clear-state tracking.</figcaption>
 </figure>
@@ -66,26 +67,22 @@ Enter prototype encounter rooms.
 **3 - Combat and Loot**
 Resolve combat and collect loot.
 
-<div class="media-grid media-grid-2">
-<figure>
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- ChestReadyToOpen.png" aria-label="Open chest ready state image in large view">
-<img src="/images/projects/project-summon/PS- ChestReadyToOpen.png" alt="Chest ready-to-open state after room clear" class="content-media" loading="lazy" />
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_ResolveCombat.gif" aria-label="Open combat and loot resolution gif in large view">
+<img src="/images/projects/project-summon/PS_ResolveCombat.gif" alt="Combat resolution and loot interaction in encounter flow" class="content-media" loading="lazy" />
 </button>
-<figcaption>Clear reward state: chest spawn confirms room completion before next-step progression.</figcaption>
+<figcaption>Combat and reward resolution: encounter pressure, clear condition, and loot handoff in one continuous flow.</figcaption>
 </figure>
 
-<figure>
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- ChestOpened.png" aria-label="Open chest opened state image in large view">
-<img src="/images/projects/project-summon/PS- ChestOpened.png" alt="Chest opened state with reward interaction completed" class="content-media" loading="lazy" />
+**4 - Return**
+Return to title and start the next cycle.
+
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_ReturnToTitle.gif" aria-label="Open return-to-title gif in large view">
+<img src="/images/projects/project-summon/PS_ReturnToTitle.gif" alt="Return-to-title flow after encounter completion" class="content-media" loading="lazy" />
 </button>
-<figcaption>Reward completion: opened-chest state confirms loot resolution before loop continuation.</figcaption>
+<figcaption>Loop return: run completion and transition back to title for the next cycle.</figcaption>
 </figure>
-</div>
-
-**4 - Persist and Return**
-Persist progression and return for the next cycle.
-
-> Placeholder: add a loop-4 visual (return-to-hub with persisted state) to complete the full run-flow evidence.
 
 ## What I Owned
 
@@ -143,10 +140,10 @@ Taken together, these decisions reflect the same priority: ship a complete playa
 Result/impact: this preserves player data collected between levels and made multiplayer handoff behavior more predictable during interactive testing.
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- PlayerInfoStructure.png" aria-label="Open player info structure image in large view">
-<img src="/images/projects/project-summon/PS- PlayerInfoStructure.png" alt="Player info data structure used for cross-level persistence" class="content-media" loading="lazy" />
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" aria-label="Open cross-level data sync gif in large view">
+<img src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" alt="Cross-level player progress synchronization between room and title/next entry" class="content-media" loading="lazy" />
 </button>
-<figcaption>Persistence data model used for cross-level player-state continuity.</figcaption>
+<figcaption>Cross-level data sync evidence: player progress is preserved and reapplied across loop transitions.</figcaption>
 </figure>
 
 ### UI and Player Feedback
