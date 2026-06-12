@@ -3,8 +3,8 @@ title: "Project Summon"
 featured: true
 draft: false
 tags: ["UE5", "Blueprint", "C++", "Local Multiplayer", "Action RPG"]
-role: "Gameplay Programmer (Team)"
-stack: "Unreal Engine 5, Blueprint, C++, UMG, GameInstance"
+role: "Gameplay Programmer (Team Systems)"
+stack: "Unreal Engine 5, Blueprint, C++, UMG, Diversion"
 year: "2025"
 summary: "A collaborative UE5 capstone where I owned core gameplay implementation and system integration to ship a complete loop (hub -> room combat -> loot -> return) under a fixed 10-week schedule."
 highlights:
@@ -22,13 +22,12 @@ links:
   github: ""
 order: 2
 keyFeatures:
-  - "Complete Playable Loop"
-  - "Room Progression"
-  - "Deterministic Combat Checks"
-  - "Inventory and Loot"
-  - "Local Multiplayer"
+  - "Room Progression Orchestration"
+  - "Deterministic Combat Runtime"
   - "Cross-Level Player Data Sync"
-focus: "Gameplay Programming · Feature Integration · MVP Delivery"
+  - "Blueprint-C++ Integration"
+  - "Scope-Disciplined Sprint Delivery"
+focus: "Gameplay Programming · Systems Integration · Team Delivery"
 focusCards:
   - title: "Loop-First MVP"
     description: "The project prioritized getting a full playable loop working before deepening any one mechanic."
