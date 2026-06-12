@@ -12,7 +12,7 @@ highlights:
   - "Room progression system with spawn orchestration, clear checks, chest reward flow, and unlock gating"
   - "Deterministic cone-based melee hit checks for readable and tunable top-down combat"
   - "Inventory and loot workflow with world labels, pickup/storage/equipment flow, and HUD integration"
-  - "Local multiplayer join/selection flow with GameInstance-based cross-level persistence"
+  - "Local multiplayer join/selection flow with GameInstance-based cross-level player data sync"
 coverImage: "/images/projects/project-summon/PS- PlayerHUDDesign.png"
 demoVideo: "https://www.youtube.com/embed/gYHEjQshulw"
 demoVideoFallback: "/images/projects/project-summon/PS- ProjectSummonWeek11Showcase.mp4"
@@ -27,7 +27,7 @@ keyFeatures:
   - "Deterministic Combat Checks"
   - "Inventory and Loot"
   - "Local Multiplayer"
-  - "Cross-Level Persistence"
+  - "Cross-Level Player Data Sync"
 focus: "Gameplay Programming · Feature Integration · MVP Delivery"
 focusCards:
   - title: "Loop-First MVP"
@@ -35,7 +35,7 @@ focusCards:
   - title: "Gameplay Feature Ownership"
     description: "The work centered on implementing concrete gameplay features and making them function together under capstone constraints."
   - title: "System Integration"
-    description: "Combat, progression, inventory, multiplayer flow, and persistence were connected into one player journey."
+    description: "Combat, progression, inventory, multiplayer flow, and player-data continuity were connected into one player journey."
   - title: "Team Delivery Context"
     description: "The project also demonstrates integration, debugging, and delivery work in a shared team environment."
 ---
@@ -93,22 +93,40 @@ I owned the gameplay-programming implementation that connected player-facing sys
 <div class="media-grid media-grid-2 ownership-system-grid">
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">System</strong>: Player Flow and Persistence</p>
-<p><strong class="ownership-kicker">Ownership</strong>: Controller registration, cross-level player sync, class-based weapon spawn handoff, and portal return continuity through shared player-state data.</p>
+<p><strong class="ownership-kicker">Ownership</strong></p>
+<ul>
+  <li>Implemented controller registration and local-multiplayer continuity through shared player-state data.</li>
+  <li>Integrated portal-return updates and cross-level player data sync in the same GameInstance-backed persistence path (currently inventory/progression-focused).</li>
+</ul>
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">System</strong>: UI and Player Feedback</p>
-<p><strong class="ownership-kicker">Ownership</strong>: UMG title-screen class selection and runtime HUD implementation, with gameplay-side data hookup for cooldown/HP state synchronization.</p>
+<p><strong class="ownership-kicker">Ownership</strong></p>
+<ul>
+  <li>Built title-screen class selection and runtime HUD in UMG.</li>
+  <li>Connected gameplay-side state updates to cooldown and HP UI feedback.</li>
+</ul>
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">System</strong>: Combat, Abilities, and Animation</p>
-<p><strong class="ownership-kicker">Ownership</strong>: Lightweight Blueprint ability architecture, weapon/ammo split with collider-based hit resolution, montage-aligned execution timing, and target-lock usability controls.</p>
+<p><strong class="ownership-kicker">Ownership</strong></p>
+<ul>
+  <li>Built lightweight Blueprint ability architecture with montage-aligned execution timing.</li>
+  <li>Implemented weapon/ammo split, ranged lock-on and retarget controls, and lock-highlight behavior.</li>
+  <li>Handled C++ functional integration with teammate-authored enemy code in the damage path.</li>
+</ul>
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">System</strong>: Loot and Progression Hooks</p>
-<p><strong class="ownership-kicker">Ownership</strong>: Chest interaction and loot-generation flow tied to room clear state, plus inventory/equipment updates that feed runtime combat readiness.</p>
+<p><strong class="ownership-kicker">Ownership</strong></p>
+<ul>
+  <li>Implemented chest interaction and loot-generation flow tied to room clear state.</li>
+  <li>Built BP_RoomManager trigger logic (collider + overlap checks) to drive enemy-clear progression events.</li>
+  <li>Wired inventory and equipment updates back into runtime combat readiness.</li>
+</ul>
 </div>
 </div>
 
@@ -121,12 +139,27 @@ As an MSE capstone and my first UE5 project, Project Summon forced decisions to 
 ### Key Decisions and Trade-offs
 
 - **Loop completion over mechanic depth**: every feature had to contribute to a shippable game flow.
-- **Blueprint-first implementation with C++ integration**: as part of an MSE capstone and my first UE5 project, I intentionally used Blueprint and built-in engine components as the primary implementation layer so I could build engine fluency while still demonstrating software-engineering judgment through modular, inspectable gameplay systems.
+- **Blueprint-first implementation**: I intentionally used Blueprint and built-in engine components as the primary implementation layer so I could build engine fluency while still demonstrating software-engineering judgment through modular, inspectable gameplay systems.
 - **Cone-shaped combat ranges over weapon ray tracing**: because the target was a hack-n-smash-leaning top-down RPG, combat and weapon systems were designed for readability, tuning speed, and debugging clarity rather than precision collision timing.
 - **Actor-based weapon hitbox instead of a component**: BP_WeaponRangeHitbox_MASTER was attached to the player character as an actor so I could monitor instance data and adjust hitbox distance/angle quickly.
+
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- PlayerCharacterSystemHierarchy.png" aria-label="Open player character hierarchy image in large view">
+<img src="/images/projects/project-summon/PS- PlayerCharacterSystemHierarchy.png" alt="Player character hierarchy showing weapon hitbox attachment and weapon loadout structure" class="content-media" loading="lazy" />
+</button>
+<figcaption>Actor-based hitbox: range-hitbox actor attached to character, keeping instance data directly inspectable during tuning.</figcaption>
+</figure>
+
 - **Separate ranged weapon / ammo actors**: ranged hits were driven by ammo collision with enemies rather than reusing the melee range hitbox.
-- **State continuity across scenes**: progression systems were designed with hub-to-level transitions in mind from the start.
+- **State continuity across scenes**: player-data payloads were designed to survive hub-to-level transitions from the start, with current saved fields focused on inventory/progression continuity.
 - **Shared parent-child actor architecture across gameplay modules**: the same hierarchy-first composition pattern was applied across character, weapon, ability, and ammo systems so behavior could be specialized without duplicating base runtime logic.
+
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- WeaponSystemHierarchy.png" aria-label="Open weapon system hierarchy image in large view">
+<img src="/images/projects/project-summon/PS- WeaponSystemHierarchy.png" alt="Weapon system hierarchy showing melee and ranged branches" class="content-media" loading="lazy" />
+</button>
+<figcaption>Shared hierarchy pattern: weapon behavior split into melee and ranged branches under a common parent, demonstrating the same specialization approach used across gameplay modules.</figcaption>
+</figure>
 
 Taken together, these decisions reflect the same priority: ship a complete playable loop while choosing systems that were easy to inspect, practical to integrate, and strong at demonstrating software-engineering judgment in a first UE5 capstone. The trade-off was deliberate: I prioritized tuning speed, integration reliability, delivery confidence, and UE5 implementation fluency over adopting heavier engine-specific systems such as GAS or more advanced hit-detection approaches, which would make more sense to evaluate in a deeper or longer-scope follow-up build.
 
@@ -135,23 +168,58 @@ Taken together, these decisions reflect the same priority: ship a complete playa
 ### Player Flow and Persistence
 
 - Controller registration and local-multiplayer continuity were implemented through a shared player-state model.
-- Class selection handoff, cross-level sync, and portal return logic use the same persistence path.
+- Class selection handoff and portal return both feed the same GameInstance persistence path used for cross-level player data sync.
+- Join flow was built around controller-driven player spawning: when a local controller joins and has no valid pawn, the game spawns a player actor and registers that controller against the new player instance.
+- Start-game transition writes each active player's runtime state payload into a per-player persistence struct, keyed by controller identity inside GameInstance.
+- After a new level loads, the game rebuilds player pawns from stored entries and reapplies the saved payload (currently inventory/progression-focused); the same persistence update path is reused when all players collide with the return portal.
 
-Result/impact: this preserves player data collected between levels and made multiplayer handoff behavior more predictable during interactive testing.
+Result/impact: this preserves cross-level player data continuity between loop transitions and made multiplayer handoff behavior more predictable during interactive testing.
+
+Implementation note: on level transition, player runtime data is serialized into a struct and stored in GameInstance; after level load, the stored struct is reloaded and reapplied to the player state (with current fields centered on inventory/progression).
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" aria-label="Open cross-level data sync gif in large view">
-<img src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" alt="Cross-level player progress synchronization between room and title/next entry" class="content-media" loading="lazy" />
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- PlayerInfoStructure.png" aria-label="Open player info structure image in large view">
+<img src="/images/projects/project-summon/PS- PlayerInfoStructure.png" alt="Player info structure storing controller identity and cross-level player data fields" class="content-media" loading="lazy" />
 </button>
-<figcaption>Cross-level data sync evidence: player progress is preserved and reapplied across loop transitions.</figcaption>
+<figcaption>Player Data Sync Structure: `S_PlayerInfo` stores per-player data for join registration and cross-level state reapplication.</figcaption>
 </figure>
+
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="5000" aria-label="Player flow and persistence evidence gallery">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous player flow evidence image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" aria-label="Open cross-level data sync gif in large view">
+<img src="/images/projects/project-summon/PS_LootAndCrossLvSync.gif" alt="Cross-level inventory/progression synchronization between room and title/next entry" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Player Data Sync System: stored player data is preserved and reapplied across loop transitions.</figcaption>
+</figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS-JoinGameAndStart.gif" aria-label="Open multiplayer join-to-level control gif in large view">
+<img src="/images/projects/project-summon/PS-JoinGameAndStart.gif" alt="Local multiplayer join flow continuing into level start with controllable players" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Local Multiplayer Handoff System: title-screen join state carries into level start with active player control.</figcaption>
+</figure>
+</div>
+
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next player flow evidence image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+
+<div class="va-grid-carousel-dots" role="tablist" aria-label="Player flow evidence image pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
+</div>
+</div>
 
 ### UI and Player Feedback
 
 - UMG implementation covers title-screen class selection and runtime HUD state.
 - Gameplay-side data hookup keeps cooldown/HP feedback synchronized during combat.
+- UI state layout and interaction flow were first aligned in Figma, then translated into UMG widgets to keep implementation and design intent consistent.
 
-Result/impact: players received immediate, reliable cooldown/HP feedback, and HUD-state debugging became faster because UI reflected gameplay state directly.
+Result/impact: HP loss and ability cooldown state are visible to the player immediately on trigger, keeping combat readability high; HUD-state debugging was also faster because the UI reflected gameplay state directly rather than maintaining separate UI-side state.
 
 <figure class="va-standalone-figure">
 <button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- PlayerHUDwithAbilityCD.png" aria-label="Open HUD with ability cooldown image in large view">
@@ -162,160 +230,164 @@ Result/impact: players received immediate, reliable cooldown/HP feedback, and HU
 
 ### Combat, Abilities, and Animation
 
-- Lightweight Blueprint ability architecture with cooldown-category behavior.
-- Weapon/ammo split with collider-based ranged hit resolution.
-- Weapon-range hitbox and animation binding integrated into the player combat path.
-- Ability input is routed through montage-driven execution, where attack/dash feedback and state transition timing stay aligned with cooldown updates.
-- Animation notifies were used to keep effect timing and hit-registration windows synchronized with the active ability state.
+- Built a lightweight Blueprint ability architecture with cooldown-category behavior and montage-driven execution timing.
+- Used animation notifies to align effect timing and hit-registration windows with active ability state.
 
-Result/impact: combat behavior stayed readable under tuning changes, and ability/weapon iteration remained stable without frequent branch-specific rewrites.
-
-<div class="va-grid-carousel" data-va-carousel data-auto-ms="5000" aria-label="Combat systems evidence gallery">
-<div class="va-grid-carousel-stage">
-<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous combat systems image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
-
-<div class="va-grid-carousel-viewport">
-<figure class="va-grid-carousel-slide is-active">
-<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- WeaponSystemHierarchy.png" aria-label="Open weapon system hierarchy image in large view">
-<img src="/images/projects/project-summon/PS- WeaponSystemHierarchy.png" alt="Weapon system hierarchy showing melee and ranged branches" class="va-grid-carousel-image" loading="lazy" />
-</button>
-<figcaption>Weapon behavior split: melee and ranged branches with explicit hit logic.</figcaption>
-</figure>
-
-<figure class="va-grid-carousel-slide">
-<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- SkillSystem.png" aria-label="Open skill system architecture image in large view">
-<img src="/images/projects/project-summon/PS- SkillSystem.png" alt="Skill system Blueprint architecture with ability flow and cooldown handling" class="va-grid-carousel-image" loading="lazy" />
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- SkillSystem.png" aria-label="Open skill system architecture image in large view">
+<img src="/images/projects/project-summon/PS- SkillSystem.png" alt="Skill system Blueprint architecture with ability flow and cooldown handling" class="content-media" loading="lazy" />
 </button>
 <figcaption>Ability flow implementation: lightweight Blueprint skill routing and cooldown handling.</figcaption>
 </figure>
 
-<figure class="va-grid-carousel-slide">
-<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- PlayerCharacterSystemHierarchy.png" aria-label="Open player character hierarchy image in large view">
-<img src="/images/projects/project-summon/PS- PlayerCharacterSystemHierarchy.png" alt="Player character hierarchy showing weapon hitbox attachment and weapon loadout structure" class="va-grid-carousel-image" loading="lazy" />
+- Implemented a ranged lock-on system: R3 toggles lock state, retarget input selects the nearest valid enemy, player facing updates toward the locked target, and an actor-follow highlight marks the active lock.
+
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS-%20RangedLockOn.gif" aria-label="Open ranged lock-on behavior gif in large view">
+<img src="/images/projects/project-summon/PS-%20RangedLockOn.gif" alt="Ranged lock-on behavior showing toggle, retarget, facing update, and lock highlight" class="content-media" loading="lazy" />
 </button>
-<figcaption>Player combat path: range-hitbox attachment and weapon loadout structure in the character hierarchy.</figcaption>
+<figcaption>Ranged Lock-On System: lock toggle, nearest-target retarget, facing update, and active-lock highlight behavior.</figcaption>
 </figure>
-</div>
 
-<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next combat systems image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
-</div>
+- Implemented weapon/ammo split with collider-based ranged hit resolution and integrated weapon-range hitbox binding into the player combat path.
+- Added C++ functional integration by exposing enemy HP and TakeDamage (`UPROPERTY`/`UFUNCTION`) on teammate-authored actor code, then merging it into the existing hit-detection path for consistent damage resolution.
 
-<div class="va-grid-carousel-dots" role="tablist" aria-label="Combat systems image pages">
-<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
-<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
-<button type="button" class="va-grid-carousel-dot" data-carousel-dot="2" aria-label="Show image 3" aria-current="false"></button>
-</div>
-</div>
-
-> Placeholder: add a short gameplay clip or screenshot showing melee hit detection and ranged ammo collision side by side.
+Result/impact: combat behavior stayed readable under tuning changes, ability/weapon iteration remained stable without frequent branch-specific rewrites, and the C++ integration point kept damage resolution consistent without duplicating hit logic.
 
 ### Loot and Progression Hooks
 
-- Chest-interaction reward flow and loot generation hooks are tied to room clear state.
-- Inventory/equipment updates feed back into runtime combat readiness.
+- Built room progression around a BP_RoomManager actor: room overlap scoped active enemies, a 0.25s timer handled the heavier overlap-array refresh, and per-tick clear checks stayed O(1) by evaluating array length only. On clear, the manager used `GetOverlappingActors` to find BP_Spawner actors and ran manager-side spawn functions at their locations (enemy/chest/portal/custom).
 
-Result/impact: reward cadence became easier to tune per room, and loot-state updates remained consistent with combat-readiness feedback.
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- RoomManagerApplication.png" aria-label="Open RoomManager application image in large view">
+<img src="/images/projects/project-summon/PS- RoomManagerApplication.png" alt="RoomManager collider bounds and spawner placement for room progression triggers" class="content-media" loading="lazy" />
+</button>
+<figcaption>RoomManager application: collider-scoped room area with enemy/chest spawner placement used by clear-condition trigger logic.</figcaption>
+</figure>
+
+- Chest-interaction reward flow and loot generation are tied to room-clear state through the same trigger path.
+- Progression sequence in the demo: Room 1 clear -> chest spawn + next area unlock; Room 2 clear -> chest spawn, and opening the chest unlocks the next area (releasing a surprise enemy wave); Room 3 clear -> chest spawn + return portal spawn.
+- Inventory/equipment updates feed back into runtime combat readiness.
 
 <figure class="va-standalone-figure">
 <button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- InventorySystem.png" aria-label="Open inventory system image in large view">
 <img src="/images/projects/project-summon/PS- InventorySystem.png" alt="Inventory system implementation view with item storage and update flow" class="content-media" loading="lazy" />
 </button>
-<figcaption>Inventory evidence: pickup/storage/equipment data path integrated into the gameplay loop.</figcaption>
+<figcaption>Inventory System Architecture: pickup, storage, and equipment data path integrated into the gameplay loop.</figcaption>
 </figure>
+
+Result/impact: reward cadence became easier to tune per room, and loot-state updates remained consistent with combat-readiness feedback.
 
 ## Integration and Delivery
 
-The most valuable part of Project Summon was not one isolated feature, but the work of getting multiple systems to function together under capstone constraints.
+This project combined gameplay programming with delivery management under a fixed 10-week MVP window.
 
-- Feature work had to survive integration with teammate-authored systems and shared project branches.
-- Sprint planning and reporting created pressure to cut scope early and keep only what supported the MVP.
-- Debugging, merge recovery, and scene-level hookup work were a substantial part of making the project playable.
+- Engineering delivery: features had to integrate cleanly with teammate-owned systems, with branch sync and merge handoff managed in Diversion.
+- Sprint execution: scope was set on Saturday/Sunday, and each following week focused on one feature/system through implementation, integration, and testing.
+- Scope-control policy existed as an early contingency plan (reduce to a 1-2 day deliverable or cut), but this project phase ultimately shipped on time.
+- PM contribution: I supported sprint planning/report updates and execution tracking so schedule decisions stayed visible and actionable.
+- Artifact-backed process: charter, WBS, schedule, and project plans aligned the team on MVP priorities and early risk control.
+- Execution reality: most time went to UE system learning, approach decisions, and debugging; once decisions settled, implementation moved quickly.
+- Why we still shipped on time: sprint budgeting split decide/apply effort up front. Decision work lagged, but apply work ran ahead and offset the delay.
 
-That made this project a better demonstration of practical game programming than a mechanics-only prototype.
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="5500" aria-label="Sprint 4 planning artifacts carousel">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous sprint artifact image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
 
-## Open Design Notes
-
-This project also has some design-facing questions that are worth documenting more clearly later, but should not be over-claimed without better evidence.
-
-### Encounter Pacing and Reward Structure
-
-Room structure used a repeatable pressure-reward cadence: encounter spawn, clear-state confirmation, chest reward, then progression handoff. This sequence made progression readable to players and easier to tune at room granularity, because each step had a distinct trigger and feedback state.
-
-### Multiplayer Readability
-
-Readability in local multiplayer relied on explicit per-player feedback (color/icon identity, cooldown/HP state) and predictable controller-registration handoff between scenes. This reduced input-state ambiguity in active play, though shared-screen readability still depends on encounter density and remains a future polish area.
-
-## Architecture Evidence
-
-To keep implementation auditable, system structure was documented through C4-style views.
-
-### System Context
-
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel1-SystemContext.png" aria-label="Open C4 system context diagram in large view">
-<img src="/images/projects/project-summon/PS- C4ModelLevel1-SystemContext.png" alt="C4 level 1 system context diagram" class="content-media" loading="lazy" />
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- WBSsprint4-1.png" aria-label="Open Sprint 4 WBS artifact 1 in large view">
+<img src="/images/projects/project-summon/PS- WBSsprint4-1.png" alt="Sprint 4 WBS artifact showing work package breakdown" class="va-grid-carousel-image" loading="lazy" />
 </button>
-<figcaption>C4 L1: project context and external interactions.</figcaption>
+<figcaption>Sprint Planning Architecture: Sprint 4 WBS for task sequencing and tracking.</figcaption>
 </figure>
 
-### Container-Level Composition
-
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel2-ContainerDiagram.png" aria-label="Open C4 container diagram in large view">
-<img src="/images/projects/project-summon/PS- C4ModelLevel2-ContainerDiagram.png" alt="C4 level 2 container diagram" class="content-media" loading="lazy" />
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- WBSsprint4-2.png" aria-label="Open Sprint 4 WBS artifact 2 in large view">
+<img src="/images/projects/project-summon/PS- WBSsprint4-2.png" alt="Sprint 4 WBS artifact showing delivery slices" class="va-grid-carousel-image" loading="lazy" />
 </button>
-<figcaption>C4 L2: main runtime containers and data/control responsibilities.</figcaption>
+<figcaption>Sprint Execution Architecture: delivery slices balancing decision and implementation throughput.</figcaption>
+</figure>
+</div>
+
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next sprint artifact image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+
+<div class="va-grid-carousel-dots" role="tablist" aria-label="Sprint artifact pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show sprint artifact 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show sprint artifact 2" aria-current="false"></button>
+</div>
+</div>
+
+Result: the project demonstrates both gameplay implementation depth and practical PM judgment in team production.
+
+## Architecture Snapshot
+
+These C4 views were prepared for capstone system communication and are kept here as a compact appendix, with implementation detail anchored in the inventory flow.
+
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="5500" aria-label="C4 architecture snapshot carousel">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous architecture image"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel1-SystemContext.png" aria-label="Open C4 level 1 system context diagram in large view">
+<img src="/images/projects/project-summon/PS- C4ModelLevel1-SystemContext.png" alt="C4 level 1 system context diagram" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>C4 L1 System Context: project boundary and external interactions.</figcaption>
 </figure>
 
-### Inventory Subsystem Detail
-
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel3-InventorySystemExample.png" aria-label="Open C4 inventory subsystem diagram in large view">
-<img src="/images/projects/project-summon/PS- C4ModelLevel3-InventorySystemExample.png" alt="C4 level 3 inventory subsystem diagram" class="content-media" loading="lazy" />
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel2-ContainerDiagram.png" aria-label="Open C4 level 2 container diagram in large view">
+<img src="/images/projects/project-summon/PS- C4ModelLevel2-ContainerDiagram.png" alt="C4 level 2 container diagram" class="va-grid-carousel-image" loading="lazy" />
 </button>
-<figcaption>C4 L3: inventory subsystem structure and dependencies.</figcaption>
+<figcaption>C4 L2 Container Architecture: runtime containers and control/data responsibilities.</figcaption>
 </figure>
 
-### Item Pickup to Inventory Update Flow
-
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel4-ItemPickupAndUpdateInventoryLogic.png" aria-label="Open C4 pickup to inventory flow diagram in large view">
-<img src="/images/projects/project-summon/PS- C4ModelLevel4-ItemPickupAndUpdateInventoryLogic.png" alt="C4 level 4 pickup to inventory update flow" class="content-media" loading="lazy" />
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel3-InventorySystemExample.png" aria-label="Open C4 level 3 inventory subsystem diagram in large view">
+<img src="/images/projects/project-summon/PS- C4ModelLevel3-InventorySystemExample.png" alt="C4 level 3 inventory subsystem diagram" class="va-grid-carousel-image" loading="lazy" />
 </button>
-<figcaption>C4 L4: pickup event to inventory state update execution path.</figcaption>
+<figcaption>C4 L3 Inventory Subsystem: module structure and dependencies.</figcaption>
 </figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- C4ModelLevel4-ItemPickupAndUpdateInventoryLogic.png" aria-label="Open C4 level 4 pickup to inventory flow diagram in large view">
+<img src="/images/projects/project-summon/PS- C4ModelLevel4-ItemPickupAndUpdateInventoryLogic.png" alt="C4 level 4 pickup to inventory update flow" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>C4 L4 Inventory Update Flow: pickup event to inventory state mutation path.</figcaption>
+</figure>
+</div>
+
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next architecture image"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+
+<div class="va-grid-carousel-dots" role="tablist" aria-label="Architecture image pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show architecture image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show architecture image 2" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="2" aria-label="Show architecture image 3" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="3" aria-label="Show architecture image 4" aria-current="false"></button>
+</div>
+</div>
 
 ## Outcomes
 
-What this project already demonstrates clearly:
+What this project demonstrates clearly:
 
 - Gameplay programming under real scope pressure.
-- System integration across combat, progression, inventory, multiplayer, and persistence.
+- System integration across combat, progression, inventory, multiplayer, and player-data sync.
 - Blueprint and C++ interoperability in a team development context.
-- Delivery-minded decision making under milestone pressure.
+- Delivery-minded decision making and sprint-level PM execution under milestone pressure.
 
-## What This Page Currently Establishes
+Project framing from current evidence:
 
-From the current text and evidence, the project can be described as:
-
-- A UE5 action-RPG capstone built around a playable loop rather than a single showcase mechanic.
-- A gameplay-programming effort focused on room progression, combat behavior, inventory flow, multiplayer join/persistence, and UI feedback.
-- A project where the most defensible claims are about system implementation and integration, not about combat class design or build balancing.
-- A hack-n-smash-leaning top-down game where readability and tunability mattered more than exact collision precision.
-- A shared-team project that still exposes concrete implementation ownership through Blueprint-driven and C++-adjacent systems.
-
-## Evidence Gaps (Placeholders)
-
-The page still needs better evidence for these areas:
-
-- A short trade-off paragraph in the technical-decisions section explaining what the current implementation gained and what it gave up.
-- A room-progression visual that clearly shows spawn -> clear -> chest -> unlock flow.
-- A combat clip or screenshot that shows melee hit detection and ranged ammo collision in motion.
-- An inventory or loot screenshot that shows pickup, storage, or equipment feedback clearly.
-- A multiplayer join/selection capture that proves the local-multiplayer flow.
+- A UE5 action-RPG capstone built around a complete playable loop rather than a single showcase mechanic.
+- A gameplay-programming effort focused on room progression, combat behavior, inventory flow, multiplayer join/player-data sync, and UI feedback.
+- A project where the strongest claims are system implementation and integration under fixed delivery constraints.
 
 ## What I'd Do Next
 
 - Evaluate GAS if the project scope expanded toward more scalable ability logic, richer state interactions, or a larger combat roster.
 - Revisit hit-detection strategy if combat depth became a higher priority, including whether more precise tracing or hybrid approaches would improve feel without hurting readability.
 - Keep the current Blueprint-first, inspectable architecture as a valid MVP baseline, then layer more specialized UE systems only where they clearly improve scale, maintainability, or combat expressiveness.
+- Track decision-to-implementation lead time per sprint as a lightweight PM metric, then use it to tune future decide/apply budgeting.

@@ -915,6 +915,48 @@ const toYoutubeEmbedUrl = (url: string) => {
     });
   }
 
+  // ── Progressive media loading for heavy GIF pages ────────────────
+  const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+  const deferImage = (img: HTMLImageElement) => {
+    const src = img.getAttribute('src');
+    if (!src || src === TRANSPARENT_PIXEL) return;
+    img.dataset.src = src;
+    img.setAttribute('src', TRANSPARENT_PIXEL);
+  };
+
+  const loadDeferredImage = (img: HTMLImageElement) => {
+    const pending = img.dataset.src;
+    if (!pending) return;
+    img.setAttribute('src', pending);
+    img.removeAttribute('data-src');
+  };
+
+  // Defer non-critical GIFs that start below the first viewport.
+  const offscreenGifs = Array.from(document.querySelectorAll<HTMLImageElement>('.prose-portfolio img[src$=".gif" i]'));
+  const gifObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const img = entry.target as HTMLImageElement;
+        loadDeferredImage(img);
+        observer.unobserve(img);
+      });
+    }, { rootMargin: '360px 0px' })
+    : null;
+
+  offscreenGifs.forEach((img) => {
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    if (!img.closest('[data-va-carousel]')) {
+      const rect = img.getBoundingClientRect();
+      if (rect.top > window.innerHeight * 1.15) {
+        deferImage(img);
+        if (gifObserver) gifObserver.observe(img);
+      }
+    }
+  });
+
   // ── Hero media fallback: YouTube iframe -> local mp4 ──────────────
   const demoVideoBlocks = document.querySelectorAll<HTMLElement>('[data-demo-video-block]');
   demoVideoBlocks.forEach((block) => {
@@ -1372,8 +1414,28 @@ const toYoutubeEmbedUrl = (url: string) => {
         nextBtn?.setAttribute('hidden', 'true');
       }
 
+      // Only load the active carousel slide initially to reduce startup payload.
+      const preloadSlideImages = (slideIndex: number) => {
+        const wrapped = (slideIndex + slides.length) % slides.length;
+        const slide = slides[wrapped];
+        if (!slide) return;
+        slide.querySelectorAll<HTMLImageElement>('.va-grid-carousel-image').forEach((img) => {
+          loadDeferredImage(img);
+        });
+      };
+
       let index = slides.findIndex((slide) => slide.classList.contains('is-active'));
       if (index < 0) index = 0;
+
+      slides.forEach((slide, i) => {
+        if (i === index) return;
+        slide.querySelectorAll<HTMLImageElement>('.va-grid-carousel-image').forEach((img) => {
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          deferImage(img);
+        });
+      });
+
       let timer: number | null = null;
       let lastDirection: 'next' | 'prev' = 'next';
 
@@ -1392,6 +1454,7 @@ const toYoutubeEmbedUrl = (url: string) => {
 
         index = wrapped;
         state.index = wrapped;
+        preloadSlideImages(wrapped);
 
         slides.forEach((slide, i) => {
           slide.classList.toggle('is-active', i === wrapped);
@@ -1414,6 +1477,9 @@ const toYoutubeEmbedUrl = (url: string) => {
 
       const restartAutoplay = () => {
         if (isLightboxOpen()) return;
+        // Do not restart while user is still interacting with the carousel,
+        // including when hovering/focusing nav buttons.
+        if (carousel.matches(':hover') || carousel.contains(document.activeElement)) return;
         if (timer !== null) window.clearInterval(timer);
         timer = window.setInterval(() => {
           setSlide(index + 1);
@@ -1471,6 +1537,17 @@ const toYoutubeEmbedUrl = (url: string) => {
         restartAutoplay();
       });
 
+      // Explicit nav guards for environments where parent hover events can be
+      // inconsistent around tightly positioned controls.
+      [prevBtn, nextBtn].forEach((navBtn) => {
+        navBtn?.addEventListener('pointerenter', stopAutoplay);
+        navBtn?.addEventListener('mouseenter', stopAutoplay);
+        navBtn?.addEventListener('focusin', stopAutoplay);
+        navBtn?.addEventListener('pointerleave', restartAutoplay);
+        navBtn?.addEventListener('mouseleave', restartAutoplay);
+        navBtn?.addEventListener('focusout', restartAutoplay);
+      });
+
       dots.forEach((dot, i) => {
         dot.addEventListener('click', () => {
           setSlide(i);
@@ -1511,6 +1588,7 @@ const toYoutubeEmbedUrl = (url: string) => {
       });
 
       setSlide(index);
+      preloadSlideImages(index + 1);
       ensureStableHeight();
       restartAutoplay();
       states.push(state);
