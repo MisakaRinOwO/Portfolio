@@ -109,7 +109,7 @@ Across all four choices, the underlying intent is the same: make every outcome r
 
 While this prototype is presented as a systems project, it also carries a longer-term creative direction: creation, responsibility, and player-authored outcomes.
 The core loop asks the player to build under constraints, face consequences, then reinterpret those consequences through replay and adaptation.
-That pattern is intentionally aligned with a broader design goal across future projects: systems should not only produce optimal answers, but also expose meaningful questions.
+That pattern reflects the kind of broader design goal I want future projects to reach: systems should not only produce optimal answers, but also expose meaningful questions.
 
 ---
 
@@ -454,7 +454,7 @@ Parses raw UE Blueprint print logs into structured JSONL and CSV. It was written
 Groups CSV output by `player_loadout_tag` × `wave_preset` and computes aggregate stats across runs for side-by-side regression checks. It was used to validate counter relationships before the in-game replay UI.
 
 **Replay-Driven Workflow:**
-The replay UI consolidated inspection into a single in-engine tool and retired both scripts from day-to-day use. Both scripts are preserved as examples of tooling that evolved with the workflow.
+The replay UI consolidated day-to-day inspection into a single in-engine tool, while both scripts remain part of the broader balance-analysis pipeline for deeper regression checks.
 
 Source code is managed in Diversion rather than GitHub; the repository is not publicly linked here.
 

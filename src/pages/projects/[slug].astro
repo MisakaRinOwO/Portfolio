@@ -463,6 +463,11 @@ const toYoutubeEmbedUrl = (url: string) => {
     background: rgba(255, 255, 255, 0.015);
     margin: 1.25rem 0 2rem;
   }
+  .prose-portfolio :global(.content-media.is-deferred-media),
+  .prose-portfolio :global(.va-grid-carousel-image.is-deferred-media) {
+    border-color: rgba(116, 159, 206, 0.35);
+    background: rgba(15, 20, 29, 0.9);
+  }
   .prose-portfolio :global(.media-grid) {
     display: grid;
     gap: 0.9rem;
@@ -916,18 +921,41 @@ const toYoutubeEmbedUrl = (url: string) => {
   }
 
   // ── Progressive media loading for heavy GIF pages ────────────────
-  const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+  const LOADING_PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1">
+          <stop offset="0%" stop-color="#141a24"/>
+          <stop offset="50%" stop-color="#202a3a"/>
+          <stop offset="100%" stop-color="#141a24"/>
+          <animate attributeName="x1" values="-1;1" dur="1.2s" repeatCount="indefinite"/>
+          <animate attributeName="x2" values="0;2" dur="1.2s" repeatCount="indefinite"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="675" fill="#0f141d"/>
+      <rect width="1200" height="675" fill="url(#g)" opacity="0.45"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9ab6d6" font-size="38" font-family="Arial, sans-serif" letter-spacing="2">LOADING MEDIA...</text>
+    </svg>`
+  )}`;
 
   const deferImage = (img: HTMLImageElement) => {
     const src = img.getAttribute('src');
-    if (!src || src === TRANSPARENT_PIXEL) return;
+    if (!src || src === LOADING_PLACEHOLDER) return;
     img.dataset.src = src;
-    img.setAttribute('src', TRANSPARENT_PIXEL);
+    img.classList.add('is-deferred-media');
+    img.setAttribute('src', LOADING_PLACEHOLDER);
   };
 
   const loadDeferredImage = (img: HTMLImageElement) => {
     const pending = img.dataset.src;
     if (!pending) return;
+    const onLoaded = () => {
+      img.classList.remove('is-deferred-media');
+      img.removeEventListener('load', onLoaded);
+      img.removeEventListener('error', onLoaded);
+    };
+    img.addEventListener('load', onLoaded);
+    img.addEventListener('error', onLoaded);
     img.setAttribute('src', pending);
     img.removeAttribute('data-src');
   };
@@ -951,8 +979,10 @@ const toYoutubeEmbedUrl = (url: string) => {
     if (!img.closest('[data-va-carousel]')) {
       const rect = img.getBoundingClientRect();
       if (rect.top > window.innerHeight * 1.15) {
-        deferImage(img);
-        if (gifObserver) gifObserver.observe(img);
+        if (gifObserver) {
+          deferImage(img);
+          gifObserver.observe(img);
+        }
       }
     }
   });

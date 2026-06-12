@@ -13,7 +13,7 @@ highlights:
   - "Deterministic cone-based melee hit checks for readable and tunable top-down combat"
   - "Inventory and loot workflow with world labels, pickup/storage/equipment flow, and HUD integration"
   - "Local multiplayer join/selection flow with GameInstance-based cross-level player data sync"
-coverImage: "/images/projects/project-summon/PS- PlayerHUDDesign.png"
+coverImage: "/images/projects/project-summon/PS- Poster.png"
 demoVideo: "https://www.youtube.com/embed/gYHEjQshulw"
 demoVideoFallback: "/images/projects/project-summon/PS- ProjectSummonWeek11Showcase.mp4"
 screenshots: []
@@ -161,7 +161,7 @@ As an MSE capstone and my first UE5 project, Project Summon forced decisions to 
 <figcaption>Shared hierarchy pattern: weapon behavior split into melee and ranged branches under a common parent, demonstrating the same specialization approach used across gameplay modules.</figcaption>
 </figure>
 
-Taken together, these decisions reflect the same priority: ship a complete playable loop while choosing systems that were easy to inspect, practical to integrate, and strong at demonstrating software-engineering judgment in a first UE5 capstone. The trade-off was deliberate: I prioritized tuning speed, integration reliability, delivery confidence, and UE5 implementation fluency over adopting heavier engine-specific systems such as GAS or more advanced hit-detection approaches, which would make more sense to evaluate in a deeper or longer-scope follow-up build.
+Taken together, these decisions reflect the same priority: ship a complete playable loop while choosing systems that were easy to inspect, practical to integrate, and useful as evidence of software-engineering judgment in a first UE5 capstone. The trade-off was deliberate: I prioritized tuning speed, integration reliability, delivery confidence, and UE5 implementation fluency over adopting heavier engine-specific systems such as GAS or more advanced hit-detection approaches, which would make more sense to evaluate in a deeper or longer-scope follow-up build.
 
 ## Core Systems
 
@@ -319,11 +319,11 @@ This project combined gameplay programming with delivery management under a fixe
 </div>
 </div>
 
-Result: the project demonstrates both gameplay implementation depth and practical PM judgment in team production.
+Result: the project demonstrates both gameplay implementation depth and PM process participation in team production.
 
 ## Architecture Snapshot
 
-These C4 views were prepared for capstone system communication and are kept here as a compact appendix, with implementation detail anchored in the inventory flow.
+These C4 views were prepared for a capstone course showcase and are kept here as a compact appendix, with implementation detail anchored in the inventory flow.
 
 <div class="va-grid-carousel" data-va-carousel data-auto-ms="5500" aria-label="C4 architecture snapshot carousel">
 <div class="va-grid-carousel-stage">
@@ -383,7 +383,7 @@ Project framing from current evidence:
 
 - A UE5 action-RPG capstone built around a complete playable loop rather than a single showcase mechanic.
 - A gameplay-programming effort focused on room progression, combat behavior, inventory flow, multiplayer join/player-data sync, and UI feedback.
-- A project where the strongest claims are system implementation and integration under fixed delivery constraints.
+- A project where the clearest claims are system implementation and integration under fixed delivery constraints.
 
 ## What I'd Do Next
 
