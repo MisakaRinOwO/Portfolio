@@ -30,7 +30,7 @@ Project write-ups live in `src/content/projects/` as Markdown files:
 | :--- | :--- |
 | `void-architect.md` | Void Architect — Modular Ship Combat Prototype (UE5) |
 | `ue5-topdown-rpg-capstone.md` | UE5 Top-Down RPG Capstone |
-| `unity-rhythm-prototype.md` | Unity Rhythm Game Prototype |
+| `crossbolt.md` | CrossBolt — Rhythm Game Prototype |
 | `grid-systems-experiments.md` | Grid Systems Experiments |
 | `mindustry-testing-study.md` | Mindustry Testing Study |
 | `godot-oss-contribution.md` | Godot OSS Contribution |
