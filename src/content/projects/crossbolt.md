@@ -15,11 +15,10 @@ highlights:
   - "Judgement-path optimization branch: O(N) active-list scan -> O(P) pending-window checks + O(1) hold re-activation lookup"
   - "In-engine beat map editor: BPM-snap grid, note placement, and .txt chart file authoring"
 coverImage: "/images/projects/crossbolt/CB-Cover.png"
-demoVideo: ""
 demoVideoFallback: "/images/projects/crossbolt/CB-AutoplayDemo.mp4"
 screenshots: []
 links:
-  github: ""
+  github: "https://github.com/MisakaRinOwO/Crossbolt-Code-Samples"
 order: 3
 keyFeatures:
   - "Custom Chart Pipeline"
@@ -56,13 +55,6 @@ Each orb occupies a lane and moves between lanes on flick input. Hit detection r
 
 Note types span Tap, Flick, Flux, Hold variants, and Chain — each requiring different input timing and duration.
 
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/[PLACEHOLDER_gameplay.gif]" aria-label="Open CrossBolt gameplay in large view">
-<img src="/images/projects/crossbolt/[PLACEHOLDER_gameplay.gif]" alt="CrossBolt autoplay run showing dual-orb note highway" class="content-media" loading="lazy" />
-</button>
-<figcaption>Autoplay run: dual-orb note highway with tap, flick, and hold notes across 6 tracks.</figcaption>
-</figure>
-
 ## What I Owned
 
 I owned the chart data pipeline, note type architecture, chart spawning path, branch-level judgement optimization, and beat map editor — the systems that define how charts are authored, loaded, represented, and instantiated at runtime.
@@ -81,8 +73,8 @@ Contribution evidence in team context: 66 / 197 commits were authored by me, con
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
-<p><strong class="ownership-kicker">System</strong>: LevelController — Chart Spawning</p>
-<p>Type-aware note spawning logic and <code>NotesByTimeBuckets</code> lookup structure. Built in collaboration with teammate-owned input and orb systems.</p>
+<p><strong class="ownership-kicker">System</strong>: LevelController — Chart Spawning & Autoplay</p>
+<p>Type-aware note spawning logic, <code>NotesByTimeBuckets</code> lookup structure, and autoplay mode that replays the same hit-detection path to validate charts without manual play-through. Built in collaboration with teammate-owned input and orb systems.</p>
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
@@ -100,13 +92,11 @@ I did not solely own baseline scoring formulas, judgement-window constants, or i
 
 ## Core Systems
 
-This section is implementation-first: what I built, how each system behaves at runtime, and how the systems connect into one playable loop.
-
-### Note Type System
+### Note Type System <span class="section-code-link">([`Note.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Notes/Note.cs) · [`Enum.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Enum.cs))</span>
 
 This system is implemented as a two-layer schema shared by runtime spawning and judgement: `NoteType` defines interaction category, and `NoteProperty` defines per-note variant behavior.
 
-#### NoteType Layer
+#### NoteType Layer <span class="section-code-link">([`Enum.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Enum.cs))</span>
 
 `NoteType` is stored on every `Note` and drives prefab routing plus input matching in runtime flow.
 
@@ -117,7 +107,14 @@ This system is implemented as a two-layer schema shared by runtime spawning and 
 
 Runtime mapping is implemented through `ChartSpawner` prefab selection and `LevelController` input/judgement checks using the same enum values.
 
-#### Runtime Carrier: NoteMonoBehaviour
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB- NoteTypeDesign.png" aria-label="Open note type design reference in large view">
+<img src="/images/projects/crossbolt/CB- NoteTypeDesign.png" alt="Note type design reference table showing Tap, Flick, Flux, and Chain with input keys, judgment rules, and hold/double-tap support" class="content-media" loading="lazy" />
+</button>
+<figcaption>NoteType implementation map: input category, runtime behavior, and prefab/judgement routing per type.</figcaption>
+</figure>
+
+#### Runtime Carrier: NoteMonoBehaviour <span class="section-code-link">([`NoteMonoBehaviour.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Notes/NoteMonoBehaviour.cs))</span>
 
 `NoteMonoBehaviour` is the runtime component attached to spawned note objects. It binds parsed `Note` data to scene objects and holds mutable judgement/hold state.
 
@@ -127,14 +124,7 @@ Runtime mapping is implemented through `ChartSpawner` prefab selection and `Leve
 - For hold visuals, `Update()` drives `HoldMesh.UpdateHold(...)` so hold body geometry updates over time while active.
 - `NoteHitHelper` consumes `NoteMonoBehaviour` fields (`noteType`, `trackNumber`, `noteProperty`) to trigger hit/miss feedback and judgement visualization.
 
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB- NoteTypeDesign.png" aria-label="Open note type design reference in large view">
-<img src="/images/projects/crossbolt/CB- NoteTypeDesign.png" alt="Note type design reference table showing Tap, Flick, Flux, and Chain with input keys, judgment rules, and hold/double-tap support" class="content-media" loading="lazy" />
-</button>
-<figcaption>NoteType implementation map: input category, runtime behavior, and prefab/judgement routing per type.</figcaption>
-</figure>
-
-#### NoteProperty Layer
+#### NoteProperty Layer <span class="section-code-link">([`Enum.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Enum.cs))</span>
 
 `NoteProperty` adds note variants on top of `NoteType` without changing core type identity. Current implementation is one property per note (plain enum, non-flag).
 
@@ -154,7 +144,7 @@ Hold-body geometry for hold-related properties is generated procedurally by `Hol
 <figcaption>NoteProperty implementation map: per-note variant flags and their runtime effects in spawn, render, and judgement flow.</figcaption>
 </figure>
 
-### Chart Pipeline & Data Architecture
+### Chart Pipeline & Data Architecture <span class="section-code-link">([`NoteLevelConverter.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/NoteLevelConverter.cs) · [`TimestampNoteContainer.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/TimestampNoteContainer.cs))</span>
 
 The chart format is a custom plain-text timestamp file, parsed at runtime by `NoteLevelConverter`. This keeps chart authoring independent of engine tooling — charts can be versioned, diffed, and edited outside Unity.
 
@@ -175,7 +165,9 @@ The chart syntax is **compositional by design**: note entries are built by chain
 <figcaption>Chart Syntax Reference: composable token grammar for lane, note type, hold modifier, and property — mirroring the runtime NoteType/NoteProperty data model.</figcaption>
 </figure>
 
-### LevelController — Chart Spawning Logic
+### LevelController — Chart Spawning Logic & Autoplay <span class="section-code-link">([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs) · [`ChartSpawner.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/ChartSpawner.cs))</span>
+
+#### Chart Spawning <span class="section-code-link">([`ChartSpawner.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/ChartSpawner.cs))</span>
 
 At level load, `ChartSpawner.SpawnChart()` calls `NoteLevelConverter.GetTimestampNoteContainers()` to receive the parsed queue already sorted by timestamp. The spawner then iterates through the queue (`while (noteQueue.Count != 0)`), and for each `TimestampNoteContainer` row, it:
 - Calls `GetTimeStamp()` to compute the note's Y-axis position (`timestamp * scrollSpeed + SpawnY`)
@@ -192,9 +184,20 @@ Key spawning behaviors:
 - Hold body geometry is procedural: `HoldMesh.cs` generates mesh vertices at spawn time from start/end timestamps and scroll speed, ensuring body length accuracy regardless of frame rate.
 - `NotesByTimeBuckets` groups active notes into time-keyed buckets so each frame's hit check resolves in O(1) rather than scanning the full active list.
 
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-ChartSpawner.png" aria-label="Open chart spawner pipeline in large view">
+<img src="/images/projects/crossbolt/CB-ChartSpawner.png" alt="Chart .txt source file and Unity Editor view after SpawnNotes: Hierarchy showing spawned note GameObjects under chartObject, Game View with notes positioned on tracks, and ChartSpawner Inspector with prefab slots and Level Controller Info fields" class="content-media" loading="lazy" />
+</button>
+<figcaption>[Placeholder — two panels] Left: chart <code>.txt</code> source showing the token-per-lane format that the converter parses into the note queue. Right: Unity Editor after clicking the <strong>SpawnNotes</strong> Context Menu button (edit-time chart inspection function, also called once on game start) — Hierarchy tree expanded to show typed Note GameObjects under <code>chartObject</code>, Game View with notes laid out on tracks at timestamp-derived Y positions, and ChartSpawner Inspector with prefab slot assignments visible.</figcaption>
+</figure>
+
+#### Autoplay Mode <span class="section-code-link">([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs))</span>
+
+To validate charts without manual play-through, an **autoplay mode** was implemented in `LevelController`. It reads the same `NotesByTimeBuckets` structure as the normal runtime path and simulates player inputs automatically at note target times, triggering the same `ProcessHit` / `ReleaseHold` path as real input. This lets a chart be verified visually end-to-end — confirming spawn positions, hold body alignment, and scoring output — and produces the autoplay footage used as the project demo.
+
 #### Judgement Path Optimization (Branch)
 
-Implemented on `Process-Hit-Optimization` branch:
+Implemented on [`Process-Hit-Optimization` branch](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/tree/process-hit-optimization) ([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/process-hit-optimization/Game/Level/LevelController.cs)):
 - Replaced full-list per-input filtering with a `pendingNotesList` sliding window over `allNotesQueue` in `[currentTime - Good, currentTime + Good]`.
 - `PopulatePendingNotesList()` only processes notes entering/leaving the timing window (amortized O(K), where K is window churn per frame) instead of rescanning all active notes.
 - `ProcessHit()` iterates only the pending window (O(P), where P is notes currently in the judgement window, typically small) and removes matched notes immediately.
@@ -203,14 +206,7 @@ Implemented on `Process-Hit-Optimization` branch:
 
 This branch-level optimization was completed and tested as a standalone runtime pipeline change, but not merged back into the final prototype branch before content lock.
 
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/[PLACEHOLDER_chart_spawner.png]" aria-label="Open chart spawner implementation in large view">
-<img src="/images/projects/crossbolt/[PLACEHOLDER_chart_spawner.png]" alt="ChartSpawner inspector and note spawning flow" class="content-media" loading="lazy" />
-</button>
-<figcaption>Chart Spawning System: timestamp-queue iteration, type-aware prefab routing, and active list population at runtime.</figcaption>
-</figure>
-
-### Beat Map Editor
+### Beat Map Editor <span class="section-code-link">([`ChartManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/ChartManager.cs) · [`EditorUIManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/EditorUIManager.cs))</span>
 
 The beat map editor is a Unity EditorWindow that lets a chart author place notes on a BPM-snap grid and export to the .txt format the runtime pipeline consumes.
 
@@ -219,28 +215,34 @@ Current state: basic tap note placement is functional; hold and flick types rema
 A minimum-complete waveform visualizer provides an audio reference layer for beat alignment.
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/[PLACEHOLDER_editor.png]" aria-label="Open beat map editor screenshot in large view">
-<img src="/images/projects/crossbolt/[PLACEHOLDER_editor.png]" alt="In-engine beat map editor showing BPM grid and note placement UI" class="content-media" loading="lazy" />
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-BeatMapEditor.png" aria-label="Open beat map editor screenshot in large view">
+<img src="/images/projects/crossbolt/CB-BeatMapEditor.png" alt="In-engine beat map editor EditorWindow showing BPM-snapped grid and note placement UI" class="content-media" loading="lazy" />
 </button>
-<figcaption>Beat Map Editor System: BPM-snapped grid with note placement and .txt export, integrated as a Unity EditorWindow.</figcaption>
+<figcaption>[Placeholder] Beat Map Editor: BPM-snapped grid, note placement, and waveform reference — Unity EditorWindow for in-engine chart authoring.</figcaption>
 </figure>
 
 ## Why This Design
 
-After the implementation layer, this section explains the technical-design rationale: why these systems were shaped this way, what trade-offs were accepted, and what constraints drove those choices.
-
 ### Key Decisions and Trade-offs
 
-- **Plain-text chart format inspired by [majdata](https://github.com/TeamMajdata)**: the chart syntax takes majdata (the plain-text fan-chart format used by the MaiMai community) as a reference point — human-readable, no engine dependency. This let the pipeline be useful before the in-engine editor reached usable state, since charts could be authored and tested by hand from day one.
-- **Beat-context system over per-note timestamps**: BPM and note division are set as persistent context tokens `(BPM)` and `{division}` that apply to all following notes until overridden, rather than requiring each note to carry an absolute timestamp. This keeps the chart file readable and enables mid-chart tempo changes without inflating entry size.
-- **Two output representations from one parse pass**: the same `NoteLevelConverter` produces both the runtime queue and the editor array in one pass, avoiding a second parse or keeping two separate loaders in sync.
-- **Procedural hold body geometry**: stretching a sprite for variable-length holds creates distortion at high scroll speeds; generating a mesh at spawn time keeps the body geometrically consistent regardless of note duration.
-- **Unified flick prefab with dynamic transform**: maintaining 5 separate flick prefabs per target-lane distance created a maintenance surface; a single prefab with computed rotation/scale at spawn reduced prefab count and made visual changes apply uniformly.
-- **Deliberate presentation/judgement decoupling (instead of collider-driven judgement)**: I intentionally separated the chart presentation layer (spawned note visuals) from the judgement information layer (time-window and input matching logic), rather than using traditional note-object colliders as the source of truth. The software-engineering intent was lower runtime complexity and more controllable judgement flow. The trade-off was heavier debugging overhead (logic-time vs scene-time mismatches), startup timing offset sensitivity when audio latency compensation was misaligned, and slower rapid-prototyping speed compared with collider-first iteration. This was later mitigated through collaborative startup synchronization work: coroutine-gated audio preloading plus DSP-time scheduled playback so chart fall-time and audio start remained aligned.
-- **Orb-position-based hit resolution**: hit detection resolves against the orb's current lane rather than a fixed per-hand track. This was a deliberate gameplay design choice — chart authors can route notes around orb positioning, and both inputs become valid on shared lanes when orbs converge. The rule is enforced in `GetInputTrack`, which always returns the orb's live position rather than a hardcoded track.
+- **Plain-text chart format**: human-readable, engine-independent. Charts could be authored and tested by hand before the in-engine editor existed, keeping the pipeline useful from day one. Majdata (the MaiMai fan-chart community format) served as a reference point.
+- **Beat-context system**: BPM `(120)` and division `{4}` persist as context tokens rather than stamping every note with an absolute timestamp — keeps the file readable and supports mid-chart tempo changes without inflating entry size.
+- **Two output representations from one parse pass**: `NoteLevelConverter` produces both the runtime `Queue<TimestampNoteContainer>` and the editor `List<FixNoteLengthWrapper>` in one pass, avoiding a second parser or format drift between tools and gameplay.
+- **Procedural hold body geometry**: sprite-stretching distorts at high scroll speeds. `HoldMesh.cs` generates mesh vertices at spawn time from duration × scroll speed, keeping body length accurate regardless of frame rate.
+- **Deliberate presentation/judgement decoupling**: chart note visuals and judgement logic are separated — no collider-based hit detection. This reduces runtime complexity and keeps judgement flow auditable. The same goal of stable player-facing timing drove the `Process-Hit-Optimization` branch (pending-window queue, O(1) hold re-activation) — the driver was edge-case consistency in dense sections, not raw performance. Trade-off: heavier debugging overhead and startup timing offset sensitivity. Mitigated by coroutine-gated audio preloading and `PlayScheduled` DSP-time synchronization.
+- **Orb-position-based hit resolution**: `GetInputTrack` always returns the orb's live lane. Chart authors can route notes around orb position; both inputs are valid on converged lanes. Reading difficulty and execution difficulty are intentionally decoupled.
+- **NotesByTimeBuckets**: bucketing active notes by timestamp quantizes per-frame hit lookup to a small DSP-time window, bounding lookup cost as chart density grows.
+
+
+<figure class="va-standalone-figure">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-LevelDesignWithOrbPositionBasedRule.png" aria-label="Open level design example in large view">
+<img src="/images/projects/crossbolt/CB-LevelDesignWithOrbPositionBasedRule.png" alt="Chart pattern showing flick notes routed across lanes — appears visually complex but resolves naturally from orb positions" class="content-media" loading="lazy" />
+</button>
+<figcaption>Flick pattern that reads as cross-lane complexity but resolves naturally from orb positions — the orb-position rule makes hand assignment implicit, so execution is more accessible than the notation suggests.</figcaption>
+</figure>
+
 - **NotesByTimeBuckets for hit lookup**: as chart density increases, linear scan over an active note list per frame becomes a hotspot; bucketing by timestamp quantizes the search space to a small window around the current DSP time.
-- **Player-experience-first judgement optimization (branch)**: in `Process-Hit-Optimization`, judgement moved from active-list scans to a pending-window queue plus O(1) hold references. The design goal was not only lower complexity but more stable timing response and fewer edge-case inconsistencies in dense sections.
-- **Scoring modifier design as two axes**: Burst and Extra were designed as opposing ends of a risk/reward spectrum rather than just score multipliers — Burst raises stakes on key beats and climax sections (higher ceiling, larger miss penalty, performance effect aligned to music intensity), while Extra lowers the floor for accessibility or massed visual spectacle (wider window, slight bonus, expressive chart density without punishment). This distinction drove the decision to keep them as separate properties rather than a single difficulty scalar.
+
 
 ### Why This Demonstrates Technical Design Fit
 

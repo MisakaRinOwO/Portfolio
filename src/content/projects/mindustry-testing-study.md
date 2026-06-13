@@ -1,18 +1,18 @@
 ---
-title: "Mindustry Systems Study"
+title: "Mindustry Testing Study"
 featured: false
 draft: true
-tags: ["Simulation", "Modding", "Java", "Systems Design"]
+tags: ["Java", "Software Testing", "JaCoCo", "Open Source"]
 role: "Solo"
-stack: "Java, Mindustry Modding API"
-year: "2023"
-summary: "A deep-dive systems analysis and modding study of Mindustry — examining how its factory simulation, resource routing, and unit AI are architected, and building a small content mod to validate those findings."
+stack: "Java, JUnit, JaCoCo, Gradle"
+year: "2024"
+summary: "A software testing study on Mindustry — an open source Java tower defense game. Configured JaCoCo coverage tooling, analyzed existing test coverage gaps, and extended the test suite with functional tests, partition tests, and FSM-derived test cases for the LogicBlock subsystem."
 highlights:
-  - "Reverse-engineered Mindustry's block-tick update system and resource belt simulation loop"
-  - "Mapped the unit AI state machine: mine → transport → attack, including pathfinding integration"
-  - "Built a content mod adding two new factory blocks with custom resource recipes and production chains"
-  - "Analysed performance hotspots using Java profiling tools; identified tile update batching as the key scaling mechanism"
-  - "Documented findings in a design breakdown comparing Mindustry's approach to similar factory games"
+  - "Configured JaCoCo plugin for Mindustry's Gradle build to generate HTML/XML coverage reports"
+  - "Identified low-coverage targets (LogicBlock: 10%, LogicBuild: 14%) via coverage report analysis"
+  - "Added functional test (LogicBlockInit) and partition test (LogicBuildUpdateCode) covering null, valid, invalid, and long string inputs plus link range boundaries"
+  - "Modelled logic block link behavior as a finite state machine (Idle → Configuring → Link_Active/Inactive) and derived FSM-based test cases"
+  - "Coverage improvement: LogicBlock 10% → 50%, LogicBuild 14% → 57% instruction coverage across two testing iterations"
 coverImage: "/images/project-placeholder.svg"
 screenshots: []
 links:
@@ -22,30 +22,79 @@ order: 6
 
 ## Overview
 
-Mindustry is an open-source factory/RTS game written in Java. Its simulation architecture handles hundreds of active factory units and thousands of block ticks per second — I wanted to understand how. This project is a combination of source reading, profiling, and hands-on modding.
+Mindustry is an open-source tower defense / factory game written in Java (~122k lines before build). This project focuses on software testing methodology: configuring coverage tooling, reading and interpreting coverage reports, and extending test coverage for an underexplored subsystem.
 
-## What I Studied
+The target subsystem is `LogicBlock` — in-game programmable logic blocks that allow players to write scripts controlling other game objects. Coverage analysis showed near-zero test coverage for this component despite its complexity.
 
-### Block Tick System
+## Tooling Setup
 
-Mindustry processes tiles in a batched update loop. Each tile type registers a `unitUpdate` or `update` handler; the game iterates tiles in chunk order each tick. The key insight: tiles only compute if they have pending work (e.g. items to move, power to distribute), dramatically reducing the active-tile count in sparse bases.
+### JaCoCo Coverage Configuration
 
-### Resource Belt Simulation
+Mindustry's Gradle build did not include coverage reporting out of the box. I extended `tests/build.gradle` with JaCoCo plugin configuration to:
+- Generate HTML and XML coverage reports (`jacocoTestReport`)
+- Set a minimum line coverage threshold (50%) per class via `jacocoTestCoverageVerification`
+- Wire coverage generation as a post-test finalizer so `./gradlew test` automatically produces a coverage report
 
-Belts don't simulate each item individually. Instead, each belt segment tracks a single "item slot" per distance unit and passes it to the next segment if space is available. This is closer to a pipeline slot model than discrete item physics — it's fast but means items can't stack or back-pressure in the way some factory games allow.
+```
+./gradlew test jacocoTestReport --rerun-tasks
+```
 
-### Unit AI
+This made coverage gaps visible and reproducible for each testing iteration.
 
-Units use a simple state machine (idle → task assigned → executing → returning) driven by a central unit controller that polls unit capacity each tick. Pathfinding uses a grid-based flow field pre-computed from objective positions, refreshed when the world changes.
+## Testing Work
 
-## The Mod
+### Baseline Coverage Analysis
 
-Built two factory blocks to test my mental model:
-- **Alloy Press**: takes iron + copper → produces alloy at a tunable ratio
-- **Coolant Loop**: consumes water to boost adjacent smelter output by 30%
+Initial JaCoCo report showed `mindustry.world.blocks.logic` was critically under-covered:
+- `LogicBlock`: 10% instruction coverage, 0% branch coverage
+- `LogicBlock.LogicBuild`: 14% instruction coverage, 8% branch coverage
 
-Both blocks behave correctly with the belt and power systems, confirming the resource routing model I documented.
+This identified `LogicBlock` as the high-value target for additional testing.
+
+### Functional Testing — LogicBlockInit
+
+`LogicBlockInit` (ApplicationTest, lines 880–905) verifies that `LogicBlock` initializes with correct default public parameter values. Tests that the block's public state fields match their declared initial values without runtime interference.
+
+### Partition Testing — LogicBuildUpdateCode
+
+`LogicBuildUpdateCode` (ApplicationTest, lines 907–973) applies partition testing to `LogicBuild.updateCode()`, which injects executable script into a logic block via `LAssembler` compilation. Input partitions:
+- **Null string** — expected silent handling (method catches and ignores parse errors)
+- **Valid code** — expected correct compilation and executor update
+- **Invalid code** — expected error suppression with no crash
+- **Long string** — boundary behavior under input size
+- **Link range**: valid (≤80 blocks) vs invalid (>80 blocks) — tests the link distance constraint
+
+Valuation is based on the `executor` and `code` variables since the method swallows invalid input exceptions.
+
+### FSM Modeling and Test Derivation — LogicBlock Link Behavior
+
+The logic block link UI interaction was not covered by existing tests. I modelled it as a finite state machine:
+
+**States:**
+- `Idle`: block exists in world, ready to be selected
+- `Configuring`: block clicked, linked blocks shown, awaiting input
+- `Link_Active`: link established and active
+- `Link_Inactive`: link exists but toggled inactive
+
+**Transitions:**
+- Click logic block → `Configuring`
+- Click self or invalid position → `Idle`
+- Click validated non-linked block → `Link_Active` (system creates link)
+- Click linked inactive block → `Link_Active`
+- Click linked active block → `Link_Inactive`
+
+`testLogicBlockLinkFSM` (ApplicationTest, lines 975–1019) covers the transition paths defined by this model, providing test cases for previously uncovered UI-interaction paths.
+
+## Coverage Results
+
+| Phase | LogicBlock Instruction | LogicBuild Instruction | LogicBuild Branch |
+|---|---|---|---|
+| Baseline | 10% | 14% | 8% |
+| After functional + partition tests | 32% | 49% | 39% |
+| After FSM tests | 50% | 57% | 47% |
+
+Each testing technique contributed distinct coverage gains. Partition testing drove the most improvement in `LogicBuild` by covering `updateCode()` branches. FSM tests added coverage in link-related paths not reachable through pure functional tests.
 
 ## Key Learnings
 
-Reading and modding a real production codebase — even a medium-scale open source game — is one of the fastest ways to understand practical systems design. Mindustry's codebase trades flexibility for performance in smart, deliberate ways that informed how I think about game simulation architecture.
+Working on a 120k-line production Java codebase where existing tests are sparse requires reading the code to understand what *should* be tested before writing any tests. Coverage numbers are a proxy — the more useful signal was identifying which *behaviors* (link validation, code injection, state transitions) were untested and why they would be risky without coverage.

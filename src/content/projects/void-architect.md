@@ -263,6 +263,45 @@ Each wave preset is a sequence of waves; each wave is a sequence of individual e
 
 These engine logs are the primary evidence for shield-break timing; the replay GIF below is included mainly to present the in-game replay interface.
 
+**DamageResolver — implementation detail (BP_PrototypeSimulator)**
+
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="0" aria-label="DamageResolver Blueprint proof gallery">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous BP proof"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA- ReloadCheckBPProof.png" aria-label="Open reload check Blueprint in large view">
+<img src="/images/projects/void-architect/VA- ReloadCheckBPProof.png" alt="Blueprint graph showing dual-path cooldown update for enemy and player weapons, with dev-only null guard and Can Fire output" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Reload check: dual-path (Enemy / Player) cooldown state update per tick. Dev-only null guard raises a script error if a weapon reference is unset at simulation time.</figcaption>
+</figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA- CalculateHitchanceBPProof.png" aria-label="Open hit chance calculation Blueprint in large view">
+<img src="/images/projects/void-architect/VA- CalculateHitchanceBPProof.png" alt="Blueprint graph showing hit chance formula: Tracking divided by TargetAgility plus epsilon, clamped to 0.05–1.0" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Hit chance formula: <code>Tracking / (TargetAgility + ε)</code> clamped to [0.05, 1.0]. The epsilon prevents divide-by-zero; the 0.05 floor ensures every weapon has a non-zero chance to land.</figcaption>
+</figure>
+
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/void-architect/VA- PlayerToEnemyShieldOverflowBPProof.png" aria-label="Open shield overflow Blueprint in large view">
+<img src="/images/projects/void-architect/VA- PlayerToEnemyShieldOverflowBPProof.png" alt="Blueprint graph showing shield overflow branch: damage absorbed by shield, overflow routed to HP, shield zeroed, and Time to Break Shield event recorded" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Shield overflow path (player → enemy): damage absorbed by shield; overflow carries into HP with shield set to zero. The shield-break tick is recorded here into the replay event log — same branch, same frame.</figcaption>
+</figure>
+</div>
+
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next BP proof"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+
+<div class="va-grid-carousel-dots" role="tablist" aria-label="DamageResolver Blueprint pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="2" aria-label="Show image 3" aria-current="false"></button>
+</div>
+</div>
+
 ### Replay & Debugging UI
 
 Each encounter generates a structured event record consumed by two UI layers.
@@ -452,6 +491,8 @@ Parses raw UE Blueprint print logs into structured JSONL and CSV. It was written
 
 **Script 2 — Run Aggregator:**
 Groups CSV output by `player_loadout_tag` × `wave_preset` and computes aggregate stats across runs for side-by-side regression checks. It was used to validate counter relationships before the in-game replay UI.
+
+A concrete balance iteration example: aggregated run data flagged the Sniper build's shield value as an outlier that made it too survivable against PicketLine regardless of player build choice. Sniper and Brawler weapon damage values were also identified as out of range. Both were nerfed to bring per-matchup win rates within the intended spread. The tooling made it possible to verify the adjustment across multiple simulated runs before committing to the final values.
 
 **Replay-Driven Workflow:**
 The replay UI consolidated day-to-day inspection into a single in-engine tool, while both scripts remain part of the broader balance-analysis pipeline for deeper regression checks.

@@ -4,7 +4,9 @@ export type ProjectEntry = CollectionEntry<'projects'>;
 
 export async function getProjectEntries(): Promise<ProjectEntry[]> {
   const entries = await getCollection('projects');
-  return entries.sort((a, b) => a.data.order - b.data.order);
+  return entries
+    .filter((e) => !e.data.draft)
+    .sort((a, b) => a.data.order - b.data.order);
 }
 
 export async function getFeaturedProject(): Promise<ProjectEntry | undefined> {

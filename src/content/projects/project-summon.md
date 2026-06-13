@@ -216,7 +216,7 @@ Implementation note: on level transition, player runtime data is serialized into
 
 - UMG implementation covers title-screen class selection and runtime HUD state.
 - Gameplay-side data hookup keeps cooldown/HP feedback synchronized during combat.
-- UI state layout and interaction flow were first aligned in Figma, then translated into UMG widgets to keep implementation and design intent consistent.
+- UI state layout and interaction flow were implemented following the UI designer's Figma spec. I extended the implementation with ability cooldown state that was not in the original design, then translated both into UMG widgets.
 
 Result/impact: HP loss and ability cooldown state are visible to the player immediately on trigger, keeping combat readability high; HUD-state debugging was also faster because the UI reflected gameplay state directly rather than maintaining separate UI-side state.
 
