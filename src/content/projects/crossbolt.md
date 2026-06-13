@@ -1,7 +1,7 @@
 ---
 title: "CrossBolt — Rhythm Game Prototype"
 featured: false
-draft: true
+draft: false
 tags: ["Unity", "C#", "Rhythm", "Systems", "Tools"]
 role: "Gameplay Programmer / Technical Designer (Team)"
 stack: "Unity 2022, C#, Unity Input System"
