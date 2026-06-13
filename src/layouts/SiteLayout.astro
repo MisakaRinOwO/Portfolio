@@ -183,5 +183,18 @@ function isActivePath(path: string) {
         policies={footerPolicies}
       />
     </div>
+    <script>
+      // Image loading skeleton: add .img-loading until each lazy img fires load
+      function initImgLoading() {
+        document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => {
+          if (img.complete && img.naturalWidth > 0) return;
+          img.classList.add('img-loading');
+          img.addEventListener('load', () => img.classList.remove('img-loading'), { once: true });
+          img.addEventListener('error', () => img.classList.remove('img-loading'), { once: true });
+        });
+      }
+      initImgLoading();
+      document.addEventListener('astro:page-load', initImgLoading);
+    </script>
   </body>
 </html>

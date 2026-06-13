@@ -120,6 +120,34 @@ img {
   display: block;
 }
 
+/* Image loading skeleton */
+@keyframes img-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+img.img-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.6s ease-in-out infinite;
+  color: transparent;
+}
+
+html[data-theme='light'] img.img-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.06) 25%,
+    rgba(0,0,0,0.13) 50%,
+    rgba(0,0,0,0.06) 75%
+  );
+  background-size: 200% 100%;
+}
+
 .site-shell {
   background-image:
     radial-gradient(circle_at_top, var(--shell-glow), transparent 28%),
