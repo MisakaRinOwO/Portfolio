@@ -1,0 +1,112 @@
+%----------------------------------------------------------------------------------------
+% Ruilin (Peter) Xie — Gameplay Programmer / Technical Designer
+% Compile with pdflatex on Overleaf
+%----------------------------------------------------------------------------------------
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage[margin=0.65in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{microtype}
+\usepackage{parskip}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=black,
+  pdfborder={0 0 0}
+}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{8pt}{4pt}
+
+% No paragraph indent
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% Compact list
+\setlist[itemize]{leftmargin=1.2em, itemsep=1pt, parsep=0pt, topsep=2pt}
+
+%----------------------------------------------------------------------------------------
+\begin{document}
+\pagestyle{empty}
+
+%--- HEADER ---
+\begin{center}
+  {\LARGE\bfseries Ruilin (Peter) Xie}\\[4pt]
+  ruilinx.peter@gmail.com\ \ $\cdot$\ \
+  +1\,(626)\,757-9218\ \ $\cdot$\ \
+  Eastvale, CA\ 92880\\[2pt]
+  \href{https://www.linkedin.com/in/ruilin-peter-xie}{LinkedIn: Ruilin(Peter)Xie}\ \ $\cdot$\ \
+  \href{https://github.com/MisakaRinOwO}{GitHub: MisakaRinOwO}\ \ $\cdot$\ \
+  \href{https://misakarinowo.github.io/Portfolio}{misakarinowo.github.io/Portfolio}
+\end{center}
+
+%--- EDUCATION ---
+\section{Education}
+
+\textbf{University of California, Irvine} \hfill Irvine, CA\\
+\textit{Master of Software Engineering} \hfill Sep 2024 -- Dec 2025\\
+Coursework: Data Structures/Algorithms, Distributed Software Architecture, Software Testing \& Debugging,\\
+Reverse Engineering \& Modeling, Concurrent/Network Programming
+
+\medskip
+\textbf{University of California, Irvine}\\
+\textit{Bachelor of Arts, Business Economics} \hfill Jun 2018 -- Aug 2022
+
+%--- SKILLS ---
+\section{Skills}
+
+\textbf{Languages:} C\# $\cdot$ C++ $\cdot$ Python $\cdot$ Blueprint (UE5) $\cdot$ Java $\cdot$ TypeScript\\
+\textbf{Engines \& Tools:} Unity 2022 $\cdot$ Unreal Engine 5 $\cdot$ UMG $\cdot$ Git $\cdot$ Diversion\\
+\textbf{Disciplines:} Gameplay Systems $\cdot$ Runtime Architecture $\cdot$ Data-Driven Design $\cdot$ Technical Design $\cdot$ Balance Tooling
+
+%--- PROJECTS ---
+\section{Projects}
+
+%-- CrossBolt --
+\textbf{CrossBolt --- Rhythm Game Prototype} \hfill Unity 2022, C\#, $|$ Team (4) $|$ 2025\\
+\href{https://github.com/MisakaRinOwO/Crossbolt-Code-Samples}{\texttt{github.com/MisakaRinOwO/Crossbolt-Code-Samples}}
+\begin{itemize}
+  \item Designed two-layer note schema (NoteType $\times$ NoteProperty) encoding gameplay intent into data and prefab routing; defined level-addressing convention (song ID / difficulty / chart.txt) consumed by runtime loader
+  \item Implemented full chart pipeline: custom .txt grammar $\rightarrow$ NoteLevelConverter $\rightarrow$ typed timestamp queue $\rightarrow$ ChartSpawner with type-aware prefab selection and NotesByTimeBuckets for O(1) per-frame hit lookup
+  \item Optimized judgement path on dedicated branch: O(N) active-list scan $\rightarrow$ O(P) pending-window checks + O(1) hold re-activation lookups
+  \item Built in-engine Beat Map Editor (Unity EditorWindow) with BPM-snap grid; autoplay mode validates charts through the same hit-detection path used at runtime
+\end{itemize}
+
+\medskip
+
+%-- Void Architect --
+\textbf{Void Architect --- Modular Ship Combat Prototype} \hfill UE5, Blueprint, Python $|$ Solo $|$ 2026
+\begin{itemize}
+  \item Implemented tick-driven combat simulation: tracking vs.\ agility hit probability, per-weapon cooldown, shield$\rightarrow$HP overflow with replay event recording per tick
+  \item Built equilateral-triangle placement grid with orientation-aware adjacency rules; data-driven module architecture via UE5 Data Assets with CPU/power budget constraints
+  \item Python log-parsing and run-aggregation scripts for balance regression; Discover$\rightarrow$Diagnose$\rightarrow$Fix$\rightarrow$Verify cycle identified Sniper shield outlier --- nerfed values and verified win-rate spread restored across full build matrix
+  \item Per-tick replay UI (timeline slider + HP/Shield curves + event log) serves as both player feedback and developer inspection tool
+\end{itemize}
+
+\medskip
+
+%-- Project Summon --
+\textbf{Project Summon --- Action RPG Capstone} \hfill UE5, Blueprint, C++ $|$ Team (5) $|$ 2025
+\begin{itemize}
+  \item Shipped complete gameplay loop (hub $\rightarrow$ room combat $\rightarrow$ loot $\rightarrow$ return) on fixed 10-week schedule; owned room progression, combat, inventory, and multiplayer persistence systems
+  \item Built BP\_RoomManager as self-contained room authority: overlap-scoped enemy tracking, O(1) clear check, multi-spawner orchestration (enemy/chest/portal) on clear trigger
+  \item Implemented cross-level player data sync via GameInstance keyed by controller identity; diagnosed UE5 controller reassignment behavior before implementing persistence path
+  \item C++ integration: exposed enemy HP and TakeDamage (\texttt{UPROPERTY}/\texttt{UFUNCTION}) on teammate-authored code, merging into existing hit-detection path for consistent damage resolution
+\end{itemize}
+
+\medskip
+
+%-- Godot --
+\textbf{Godot Engine --- Open Source C++ Contributions} \hfill C++, Godot 4 $|$ 2025\\
+\href{https://github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}{\texttt{github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}}
+\begin{itemize}
+  \item PR \#107101 (CSGShapes3D): fixed broken hover-feedback by replacing faulty color-mask path with deterministic opacity model; PR \#107296 (3D Ruler): added axis-projected helper lines and contextual labels for 3D spatial readability
+  \item Both PRs passed CI and received maintainer review; two earlier test-coverage PRs (Sprite2D, AnimationBlendTree) also merged into master
+\end{itemize}
+
+\end{document}
