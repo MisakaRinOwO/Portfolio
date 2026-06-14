@@ -1144,6 +1144,19 @@ const toYoutubeEmbedUrl = (url: string) => {
       v.volume = Number.isFinite(vol) ? vol : 0.5;
     });
 
+    // Resolve data-base-src videos (markdown inline videos that need base URL prefix)
+    const _prose = document.querySelector<HTMLElement>('.prose-portfolio');
+    const _base = _prose?.dataset.base ?? '';
+    document.querySelectorAll<HTMLVideoElement>('video[data-base-src]').forEach((v) => {
+      const src = v.dataset.baseSrc!;
+      const full = src.startsWith('/') ? `${_base}${src}` : src;
+      const s = document.createElement('source');
+      s.src = full;
+      s.type = 'video/mp4';
+      v.appendChild(s);
+      v.load();
+    });
+
   // ── TOC: collapse / expand ──────────────────────────────────────────
   const toggle = document.getElementById('toc-toggle');
   const list   = document.getElementById('toc-list');

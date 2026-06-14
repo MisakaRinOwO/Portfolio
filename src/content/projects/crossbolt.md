@@ -144,9 +144,12 @@ Hold-body geometry for hold-related properties is generated procedurally by `Hol
 <figcaption>NoteProperty implementation map: per-note variant flags and their runtime effects in spawn, render, and judgement flow.</figcaption>
 </figure>
 
-### Chart Pipeline & Data Architecture <span class="section-code-link">([`NoteLevelConverter.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/NoteLevelConverter.cs) · [`TimestampNoteContainer.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/TimestampNoteContainer.cs))</span>
+### Chart Pipeline & Data Architecture
+<span class="section-code-link">([`NoteLevelConverter.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/NoteLevelConverter.cs) · [`TimestampNoteContainer.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Core/Chartting/TimestampNoteContainer.cs) · [`Levels/README.md`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Levels/README.md))</span>
 
 The chart format is a custom plain-text timestamp file, parsed at runtime by `NoteLevelConverter`. This keeps chart authoring independent of engine tooling — charts can be versioned, diffed, and edited outside Unity.
+
+The on-disk level convention was also designed as part of this system: each song maps to a 6-digit ID folder (`000001/`), with per-difficulty subfolders (`medium/chart.txt`) and a `SongInfo.json` metadata spec. This addressing scheme is what `LevelController` uses to load charts by `songID` and `Difficulty` at runtime.
 
 The format was designed with [majdata](https://github.com/TeamMajdata) as a conceptual reference — the plain-text authoring syntax used by the MaiMai fan-chart community. The goal was the same: a human-readable, tool-independent format that a charter can author by hand before any dedicated editor exists.
 
@@ -165,7 +168,8 @@ The chart syntax is **compositional by design**: note entries are built by chain
 <figcaption>Chart Syntax Reference: composable token grammar for lane, note type, hold modifier, and property — mirroring the runtime NoteType/NoteProperty data model.</figcaption>
 </figure>
 
-### LevelController — Chart Spawning Logic & Autoplay <span class="section-code-link">([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs) · [`ChartSpawner.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/ChartSpawner.cs))</span>
+### LevelController — Chart Spawning Logic & Autoplay
+<span class="section-code-link">([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs) · [`ChartSpawner.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/ChartSpawner.cs))</span>
 
 #### Chart Spawning <span class="section-code-link">([`ChartSpawner.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/ChartSpawner.cs))</span>
 
@@ -184,12 +188,20 @@ Key spawning behaviors:
 - Hold body geometry is procedural: `HoldMesh.cs` generates mesh vertices at spawn time from start/end timestamps and scroll speed, ensuring body length accuracy regardless of frame rate.
 - `NotesByTimeBuckets` groups active notes into time-keyed buckets so each frame's hit check resolves in O(1) rather than scanning the full active list.
 
-<figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-ChartSpawner.png" aria-label="Open chart spawner pipeline in large view">
-<img src="/images/projects/crossbolt/CB-ChartSpawner.png" alt="Chart .txt source file and Unity Editor view after SpawnNotes: Hierarchy showing spawned note GameObjects under chartObject, Game View with notes positioned on tracks, and ChartSpawner Inspector with prefab slots and Level Controller Info fields" class="content-media" loading="lazy" />
+<div class="media-grid media-grid-2" style="align-items:start">
+<figure class="va-standalone-figure" style="margin:0">
+<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-Chart01TXTFile.png" aria-label="Open chart .txt source file in large view">
+<img src="/images/projects/crossbolt/CB-Chart01TXTFile.png" alt="chart.txt source file showing BPM/division context tokens and per-lane note entries parsed by NoteLevelConverter" class="content-media" loading="lazy" />
 </button>
-<figcaption>[Placeholder — two panels] Left: chart <code>.txt</code> source showing the token-per-lane format that the converter parses into the note queue. Right: Unity Editor after clicking the <strong>SpawnNotes</strong> Context Menu button (edit-time chart inspection function, also called once on game start) — Hierarchy tree expanded to show typed Note GameObjects under <code>chartObject</code>, Game View with notes laid out on tracks at timestamp-derived Y positions, and ChartSpawner Inspector with prefab slot assignments visible.</figcaption>
+<figcaption>Chart source: BPM context <code>(110)</code>, division <code>{4}</code>, and per-lane entries. This is the exact file <code>NoteLevelConverter</code> parses into the runtime <code>Queue&lt;TimestampNoteContainer&gt;</code>.</figcaption>
 </figure>
+
+<figure class="va-standalone-figure" style="margin:0">
+<video class="content-media" controls playsinline preload="metadata" data-base-src="/images/projects/crossbolt/CB-ChartSpwnerDemoAndViewHierarchy.mp4" style="width:100%">
+</video>
+<figcaption>SpawnNotes in editor: right-clicking <code>ChartSpawner</code> in the Inspector and selecting <strong>SpawnNotes</strong> runs <code>ChartSpawner.SpawnChart()</code> outside Play Mode — Hierarchy expands to show typed Note GameObjects under <code>chartObject</code>, prefab slots visible in Inspector.</figcaption>
+</figure>
+</div>
 
 #### Autoplay Mode <span class="section-code-link">([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs))</span>
 
@@ -206,19 +218,17 @@ Implemented on [`Process-Hit-Optimization` branch](https://github.com/MisakaRinO
 
 This branch-level optimization was completed and tested as a standalone runtime pipeline change, but not merged back into the final prototype branch before content lock.
 
-### Beat Map Editor <span class="section-code-link">([`ChartManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/ChartManager.cs) · [`EditorUIManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/EditorUIManager.cs))</span>
+### Beat Map Editor
+<span class="section-code-link">([`ChartManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/ChartManager.cs) · [`EditorUIManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/EditorUIManager.cs))</span>
 
-The beat map editor is a Unity EditorWindow that lets a chart author place notes on a BPM-snap grid and export to the .txt format the runtime pipeline consumes.
+The beat map editor is a Unity EditorWindow for in-engine chart authoring, targeting a self-contained design-to-test workflow without leaving the project.
 
-Current state: basic tap note placement is functional; hold and flick types remain an active exploration area. The editor is not yet at a production-use level but establishes the round-trip: author in editor → export .txt → load at runtime.
-
-A minimum-complete waveform visualizer provides an audio reference layer for beat alignment.
+Current state: BPM-snap grid with configurable division, bar line add/remove, tap note selection with snap-on placement — all functional. Hold and flick types remain planned. `.txt` export to the runtime pipeline format is the next milestone not yet implemented.
 
 <figure class="va-standalone-figure">
-<button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-BeatMapEditor.png" aria-label="Open beat map editor screenshot in large view">
-<img src="/images/projects/crossbolt/CB-BeatMapEditor.png" alt="In-engine beat map editor EditorWindow showing BPM-snapped grid and note placement UI" class="content-media" loading="lazy" />
-</button>
-<figcaption>[Placeholder] Beat Map Editor: BPM-snapped grid, note placement, and waveform reference — Unity EditorWindow for in-engine chart authoring.</figcaption>
+<video class="content-media" controls playsinline preload="metadata" data-base-src="/images/projects/crossbolt/CB-BMEdemo.mp4" style="width:100%">
+</video>
+<figcaption>Beat Map Editor: BPM and division controls drive the bar line grid; tap note selection with snap-on placement. Hold/flick support and <code>.txt</code> export are planned next.</figcaption>
 </figure>
 
 ## Why This Design
@@ -233,15 +243,12 @@ A minimum-complete waveform visualizer provides an audio reference layer for bea
 - **Orb-position-based hit resolution**: `GetInputTrack` always returns the orb's live lane. Chart authors can route notes around orb position; both inputs are valid on converged lanes. Reading difficulty and execution difficulty are intentionally decoupled.
 - **NotesByTimeBuckets**: bucketing active notes by timestamp quantizes per-frame hit lookup to a small DSP-time window, bounding lookup cost as chart density grows.
 
-
 <figure class="va-standalone-figure">
 <button type="button" class="va-standalone-zoom" data-lightbox-src="/images/projects/crossbolt/CB-LevelDesignWithOrbPositionBasedRule.png" aria-label="Open level design example in large view">
 <img src="/images/projects/crossbolt/CB-LevelDesignWithOrbPositionBasedRule.png" alt="Chart pattern showing flick notes routed across lanes — appears visually complex but resolves naturally from orb positions" class="content-media" loading="lazy" />
 </button>
 <figcaption>Flick pattern that reads as cross-lane complexity but resolves naturally from orb positions — the orb-position rule makes hand assignment implicit, so execution is more accessible than the notation suggests.</figcaption>
 </figure>
-
-- **NotesByTimeBuckets for hit lookup**: as chart density increases, linear scan over an active note list per frame becomes a hotspot; bucketing by timestamp quantizes the search space to a small window around the current DSP time.
 
 
 ### Why This Demonstrates Technical Design Fit
@@ -261,9 +268,7 @@ The project started without effective project management — no GDD, no clear sc
 
 On the execution side, my natural tendency was to reach for algorithmic and software-engineering solutions first — which produced solid systems (the chart pipeline, the note data architecture, `NotesByTimeBuckets`) but sometimes at the cost of keeping the broader gameplay loop moving forward. That's a tension I recognised more clearly after going through the MSWE capstone with an explicit PM framework, and it's something I've been actively recalibrating.
 
-What this project demonstrates alongside the systems work: design judgment under ambiguity, willingness to make a scope call when the team lacks one, and honest self-awareness about where over-engineering can get in the way of shipping.
-
-For gameplay programming roles, this project shows end-to-end runtime system ownership and implementation depth. For technical design roles, it shows player-experience-driven system shaping, explicit trade-off reasoning, and schema-level design decisions grounded in real runtime constraints.
+What this project demonstrates alongside the systems work: design judgment under ambiguity, willingness to make a scope call when the team lacks one, and honest self-awareness about where over-engineering can get in the way of shipping. The systems are real, the trade-offs are documented, and the parts I didn't own are clearly marked.
 
 ## What I'd Do Next
 
