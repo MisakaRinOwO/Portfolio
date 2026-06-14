@@ -20,7 +20,7 @@ screenshots: []
 links:
   video: "https://www.youtube.com/watch?v=gYHEjQshulw"
   github: ""
-order: 2
+order: 3
 keyFeatures:
   - "Room Progression Orchestration"
   - "Deterministic Combat Runtime"
@@ -137,9 +137,10 @@ As an MSE capstone and my first UE5 project, Project Summon forced decisions to 
 
 ### Key Decisions and Trade-offs
 
-- **Loop completion over mechanic depth**: every feature had to contribute to a shippable game flow.
+- **Room progression scoped to a manager actor over distributed spawner logic**: BP_RoomManager was designed as a self-contained room authority — it owns the enemy overlap array, the clear condition check, and the spawn trigger — rather than spreading that logic across individual spawner actors. The design goal was a single point of inspection: during tuning and debugging, all room-state queries go through one actor, and edge cases (stale overlaps, timing gaps on room clear) are handled in one place. The 0.25s overlap-array refresh timer was a deliberate trade-off: per-tick refresh was too expensive, and a slower polling rate was acceptable because room-clear is a low-frequency event in normal play.
+- **Multiplayer join and cross-level data sync required understanding UE5’s controller model from scratch**: this was the hardest implementation problem in the project. The surface issue was that controller IDs weren’t persisting correctly across level transitions and player restart calls weren’t behaving as expected. The root cause was incomplete understanding of how UE5 assigns and reassigns controller identities, and that GameInstance — a globally persistent object that survives level loads — was the right anchor for cross-level player data. Once the architecture was clear (controller identity → player data keyed in GameInstance → reapplied on level load), the implementation became straightforward. The delay here was architectural, not implementational — which is why sprint budgeting the “decision” and “apply” phases separately mattered: the decision lag was absorbed by running ahead on other apply-phase work.
 - **Blueprint-first implementation**: I intentionally used Blueprint and built-in engine components as the primary implementation layer so I could build engine fluency while still demonstrating software-engineering judgment through modular, inspectable gameplay systems.
-- **Cone-shaped combat ranges over weapon ray tracing**: because the target was a hack-n-smash-leaning top-down RPG, combat and weapon systems were designed for readability, tuning speed, and debugging clarity rather than precision collision timing.
+- **Cone-shaped combat ranges over weapon ray tracing**: top-down hack-n-smash combat doesn't need hitscan precision — the camera angle makes lateral spread more readable to players than ray-accurate hit lines, and the genre expectation leans toward "swinging into a group" rather than precise targeting. Cone overlap made hitbox tuning purely data-driven (distance + angle), avoided the time cost of understanding UE5's trace collision channels and response setup, and kept hit logic simple enough to debug visually. The trade-off is transferability: a new programmer would need time to understand why collision geometry rather than line traces is driving hit detection, and the approach doesn't extend to mechanics that need headshots or penetration.
 - **Actor-based weapon hitbox instead of a component**: BP_WeaponRangeHitbox_MASTER was attached to the player character as an actor so I could monitor instance data and adjust hitbox distance/angle quickly.
 
 <figure class="va-standalone-figure">
@@ -149,7 +150,7 @@ As an MSE capstone and my first UE5 project, Project Summon forced decisions to 
 <figcaption>Actor-based hitbox: range-hitbox actor attached to character, keeping instance data directly inspectable during tuning.</figcaption>
 </figure>
 
-- **Separate ranged weapon / ammo actors**: ranged hits were driven by ammo collision with enemies rather than reusing the melee range hitbox.
+- **Separate ranged weapon / ammo actors**: the weapon is a launcher — it defines fire rate and spawn point, not damage. Damage belongs to the projectile. This decouples "when to fire" from "what gets hit" so either side can be changed independently. The trade-off is hierarchy depth: with only one ranged weapon type in the prototype, the split looks over-engineered relative to current scope, but it was the right call for a system intended to scale.
 - **State continuity across scenes**: player-data payloads were designed to survive hub-to-level transitions from the start, with current saved fields focused on inventory/progression continuity.
 - **Shared parent-child actor architecture across gameplay modules**: the same hierarchy-first composition pattern was applied across character, weapon, ability, and ammo systems so behavior could be specialized without duplicating base runtime logic.
 
@@ -182,6 +183,45 @@ Implementation note: on level transition, player runtime data is serialized into
 </button>
 <figcaption>Player Data Sync Structure: `S_PlayerInfo` stores per-player data for join registration and cross-level state reapplication.</figcaption>
 </figure>
+
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="0" aria-label="GameInstance player data sync Blueprint proof gallery">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- UpdatePlayerInfoToGIBP1.png" aria-label="Open UpdatePlayerInfoToGI BP1 in large view">
+<img src="/images/projects/project-summon/PS- UpdatePlayerInfoToGIBP1.png" alt="UpdatePlayerInfoInGI function: Get Game Instance, Cast to GI_MPGame, Get All Actors of Class BP_PlayerMAST, For Each Loop, Make S Player Info from Player Pawn" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption><code>UpdatePlayerInfoInGI</code> — write path entry: cast to <code>GI_MPGame</code>, iterate all <code>BP_PlayerMAST</code> pawns, build <code>S_PlayerInfo</code> struct per pawn keyed by controller ID. Comment box: upsert logic — update existing entry or add new one.</figcaption>
+</figure>
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- UpdatePlayerInfoToGIBP2.png" aria-label="Open UpdatePlayerInfoToGI BP2 in large view">
+<img src="/images/projects/project-summon/PS- UpdatePlayerInfoToGIBP2.png" alt="UpdatePlayerInfoInGI upsert logic: For Each Loop with Break matches controller ID, Compare Int routes to Set Array Elem (update) or ADD (insert)" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Upsert detail: scan GI player array with break on controller ID match → <code>Compare Int</code> routes to <code>Set Array Elem</code> (update existing) or <code>ADD</code> (new entry). Two comment boxes make both branches explicit.</figcaption>
+</figure>
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- RestorePlayerInfoToPlayerPawnsBP1.png" aria-label="Open RestorePlayerInfoToPlayerPawns BP1 in large view">
+<img src="/images/projects/project-summon/PS- RestorePlayerInfoToPlayerPawnsBP1.png" alt="RestorePlayerInfoToPlayerPawns: Get All Actors of Class BP_PlayerMAST, Get Game Instance, Cast to GI_MPGame, For Each Loop over Player Information array" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption><code>RestorePlayerInfoToPlayerPawns</code> — read path entry: collect all live pawns, read <code>Player Information</code> array from <code>GI_MPGame</code>, outer For Each iterates pawns.</figcaption>
+</figure>
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- RestorePlayerInfoToPlayerPawnsBP2.png" aria-label="Open RestorePlayerInfoToPlayerPawns BP2 in large view">
+<img src="/images/projects/project-summon/PS- RestorePlayerInfoToPlayerPawnsBP2.png" alt="RestorePlayerInfoToPlayerPawns match loop: inner For Each with Break matches S_PlayerInfo controller ID to pawn controller ID, then calls Set Player Pawn Data From S Player Info" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Match and restore: inner <code>For Each with Break</code> scans GI array, breaks on controller ID match, calls <code>Set Player Pawn Data From S Player Info</code> to reapply saved state to the correct pawn.</figcaption>
+</figure>
+</div>
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+<div class="va-grid-carousel-dots" role="tablist" aria-label="GI player data sync BP pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="2" aria-label="Show image 3" aria-current="false"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="3" aria-label="Show image 4" aria-current="false"></button>
+</div>
+</div>
 
 <div class="va-grid-carousel" data-va-carousel data-auto-ms="5000" aria-label="Player flow and persistence evidence gallery">
 <div class="va-grid-carousel-stage">
@@ -263,6 +303,31 @@ Result/impact: combat behavior stayed readable under tuning changes, ability/wea
 </button>
 <figcaption>RoomManager application: collider-scoped room area with enemy/chest spawner placement used by clear-condition trigger logic.</figcaption>
 </figure>
+
+<div class="va-grid-carousel" data-va-carousel data-auto-ms="0" aria-label="RoomManager Blueprint proof gallery">
+<div class="va-grid-carousel-stage">
+<button type="button" class="va-grid-carousel-nav" data-carousel-prev aria-label="Previous"><span class="va-nav-triangle va-nav-triangle-left" aria-hidden="true"></span></button>
+<div class="va-grid-carousel-viewport">
+<figure class="va-grid-carousel-slide is-active">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- RoomManagerTickCheckBP1.png" aria-label="Open RoomManager tick check BP1 in large view">
+<img src="/images/projects/project-summon/PS- RoomManagerTickCheckBP1.png" alt="BP_RoomManager tick: branch on Spawning Enemy and Enemy Setup flags, Enemies array length check, Do Once guard, For Each on Spawners in Room" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Tick check entry: branch on <code>Spawning Enemy</code> and <code>Enemy Setup</code> state flags → evaluate <code>Enemies</code> array length → <code>Do Once</code> guard → iterate spawners on clear. Comment box below shows the parallel logic that sets <code>Enemy Setup</code> to true once enemies are registered.</figcaption>
+</figure>
+<figure class="va-grid-carousel-slide">
+<button type="button" class="va-grid-carousel-zoom" data-lightbox-src="/images/projects/project-summon/PS- RoomManagerTickCheckBP2.png" aria-label="Open RoomManager tick check BP2 in large view">
+<img src="/images/projects/project-summon/PS- RoomManagerTickCheckBP2.png" alt="BP_RoomManager clear path: Switch on SpawnerOptions routes to Spawn Chest or Spawn Campfire Portal, then clears timer, sets Room Cleared flag, and opens door" class="va-grid-carousel-image" loading="lazy" />
+</button>
+<figcaption>Clear path: <code>Switch on EM_SpawnerOptions</code> routes each spawner to chest or portal spawn call → clear timer → <code>SET Room Cleared</code> → <code>Opens Door</code>. Dev-only print confirms the trigger fired.</figcaption>
+</figure>
+</div>
+<button type="button" class="va-grid-carousel-nav" data-carousel-next aria-label="Next"><span class="va-nav-triangle va-nav-triangle-right" aria-hidden="true"></span></button>
+</div>
+<div class="va-grid-carousel-dots" role="tablist" aria-label="RoomManager BP pages">
+<button type="button" class="va-grid-carousel-dot is-active" data-carousel-dot="0" aria-label="Show image 1" aria-current="true"></button>
+<button type="button" class="va-grid-carousel-dot" data-carousel-dot="1" aria-label="Show image 2" aria-current="false"></button>
+</div>
+</div>
 
 - Chest-interaction reward flow and loot generation are tied to room-clear state through the same trigger path.
 - Progression sequence in the demo: Room 1 clear -> chest spawn + next area unlock; Room 2 clear -> chest spawn, and opening the chest unlocks the next area (releasing a surprise enemy wave); Room 3 clear -> chest spawn + return portal spawn.

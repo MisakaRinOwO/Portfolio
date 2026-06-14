@@ -1,6 +1,6 @@
 ---
 title: "CrossBolt — Rhythm Game Prototype"
-featured: false
+featured: true
 draft: false
 tags: ["Unity", "C#", "Rhythm", "Systems", "Tools"]
 role: "Gameplay Programmer / Technical Designer (Team)"
@@ -19,7 +19,7 @@ demoVideoFallback: "/images/projects/crossbolt/CB-AutoplayDemo.mp4"
 screenshots: []
 links:
   github: "https://github.com/MisakaRinOwO/Crossbolt-Code-Samples"
-order: 3
+order: 1
 keyFeatures:
   - "Custom Chart Pipeline"
   - "6-Type Note Architecture"

@@ -23,7 +23,7 @@ links:
   video: "https://youtu.be/67x-hivfs2Y"
   demo: "https://drive.google.com/file/d/11oll_UAQ71cBDiUCH8mEpKpCXvlhJABr/view?usp=sharing"
   github: ""
-order: 1
+order: 2
 keyFeatures:
   - "Triangular Grid Placement"
   - "Tick Simulation"
@@ -490,9 +490,15 @@ Parses raw UE Blueprint print logs into structured JSONL and CSV. It was written
 - Outputs JSONL (nested `wave_preset_event` + `simulation_result`) and a flat CSV for spreadsheet analysis
 
 **Script 2 — Run Aggregator:**
-Groups CSV output by `player_loadout_tag` × `wave_preset` and computes aggregate stats across runs for side-by-side regression checks. It was used to validate counter relationships before the in-game replay UI.
+Groups CSV output by `player_loadout_tag` × `wave_preset` and computes aggregate stats across runs for side-by-side regression checks.
 
-A concrete balance iteration example: aggregated run data flagged the Sniper build's shield value as an outlier that made it too survivable against PicketLine regardless of player build choice. Sniper and Brawler weapon damage values were also identified as out of range. Both were nerfed to bring per-matchup win rates within the intended spread. The tooling made it possible to verify the adjustment across multiple simulated runs before committing to the final values.
+A concrete balance iteration cycle using this script:
+- **Discover**: aggregated win rates showed Shield-Missile dominating PicketLine matchups regardless of player skill or adaptation — the counter relationship was broken, not just tight
+- **Diagnose**: per-build breakdown traced the outlier to Sniper enemy shield values (too high to break before the player was pressured out) and Sniper + Brawler weapon damage (out of the intended TTK range)
+- **Fix**: nerfed Sniper shield values and both weapon damage stats; PicketLine enemy count was also raised to maintain the preset's pressure profile after the survivability reduction
+- **Verify**: re-ran aggregation across multiple simulated builds — win-rate spread returned to the intended range where each build had at least one viable matchup, and Shield-Missile was no longer the safe default
+
+The key constraint was preserving a winnable route for Brawler while closing the Sniper exploit — without the aggregation tool, verifying this across the full four-build × two-preset matrix would have required extensive manual play-throughs.
 
 **Replay-Driven Workflow:**
 The replay UI consolidated day-to-day inspection into a single in-engine tool, while both scripts remain part of the broader balance-analysis pipeline for deeper regression checks.
