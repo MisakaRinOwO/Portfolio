@@ -41,18 +41,43 @@ const resumeHref = `${base}/resume/resume.pdf`;
     </div>
 
     <!-- PDF preview (hidden on small screens) -->
-    <div class="mt-12 hidden border border-white/10 sm:block">
-      <iframe
-        src={resumeHref}
-        title="Resume PDF preview"
-        class="h-[80vh] w-full"
-        aria-label="Resume PDF preview"
-      ></iframe>
+    <div class="mt-12 hidden sm:block" id="resume-preview-root">
+      <button
+        type="button"
+        class="inline-flex min-h-[48px] items-center gap-3 border border-white/20 px-8 font-display text-[12px] uppercase tracking-[0.2em] text-white/60 transition-all duration-300 hover:border-accent-blue/40 hover:text-accent-blue"
+        id="resume-preview-btn"
+        data-pdf-src={resumeHref}
+      >
+        Load PDF Preview
+      </button>
+      <div class="mt-4 border border-white/10" id="resume-preview-frame"></div>
     </div>
 
     <p class="mt-6 text-sm text-white/36 sm:hidden">
       PDF preview is available on larger screens. Use the download button above.
     </p>
+
+    <script>
+      const previewBtn = document.getElementById('resume-preview-btn');
+      const previewFrame = document.getElementById('resume-preview-frame');
+
+      previewBtn?.addEventListener('click', () => {
+        if (!previewFrame || previewFrame.childElementCount > 0) return;
+        const src = previewBtn.getAttribute('data-pdf-src');
+        if (!src) return;
+
+        const iframe = document.createElement('iframe');
+        iframe.src = src;
+        iframe.title = 'Resume PDF preview';
+        iframe.className = 'h-[80vh] w-full';
+        iframe.setAttribute('aria-label', 'Resume PDF preview');
+
+        previewFrame.appendChild(iframe);
+        previewBtn.textContent = 'PDF Preview Loaded';
+        previewBtn.setAttribute('disabled', 'true');
+        previewBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      });
+    </script>
 
   </main>
 </SiteLayout>

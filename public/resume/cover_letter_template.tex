@@ -1,0 +1,85 @@
+%----------------------------------------------------------------------------------------
+% Cover Letter Template — Ruilin (Peter) Xie
+% Usage: Replace all [PLACEHOLDER] blocks before sending.
+% Compile with pdflatex on Overleaf.
+%----------------------------------------------------------------------------------------
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{parskip}
+\usepackage{microtype}
+
+\hypersetup{colorlinks=true, urlcolor=black, pdfborder={0 0 0}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+
+%----------------------------------------------------------------------------------------
+\begin{document}
+\pagestyle{empty}
+
+% ── Header ──────────────────────────────────────────────────────────────────
+Ruilin (Peter) Xie\\
+ruilinx.peter@gmail.com\ \ $\cdot$\ \ +1\,(626)\,757-9218\\
+\href{https://misakarinowo.github.io/Portfolio}{misakarinowo.github.io/Portfolio}\ \ $\cdot$\ \
+\href{https://github.com/MisakaRinOwO}{github.com/MisakaRinOwO}
+
+\today
+
+% ── Salutation ───────────────────────────────────────────────────────────────
+% If you have a specific name, use "Dear [Name],"
+% Otherwise use the line below.
+Dear [COMPANY NAME] Team,
+
+% ── Paragraph 1: Why this company (most important — must be specific) ────────
+% Replace this entire paragraph. 1–3 sentences.
+% What draws you to them: a specific game mechanic, design philosophy,
+% a system you found interesting as a player, or a public talk/blog post.
+% Do NOT write "I have always been passionate about games."
+[WHY THIS COMPANY: e.g. "What draws me to [Studio] is [specific system / design decision
+in [Game]] — the way [brief observation]. That kind of design — [one-sentence takeaway] —
+is exactly the problem space I want to work in."]
+
+% ── Paragraph 2: Who you are + strongest evidence (keep concise) ─────────────
+I'm a gameplay programmer and technical designer with a focus on runtime systems and
+data-driven architecture. My recent work includes:
+
+\begin{itemize}
+  \setlength\itemsep{2pt}
+  \item \textbf{CrossBolt} (Unity, C\#): owned the full chart pipeline from authoring grammar
+    to runtime spawner and a branch-level judgement-path optimization
+    (O(N)$\rightarrow$O(P) pending-window). Code is public on GitHub.
+  \item \textbf{Void Architect} (UE5, Blueprint): solo modular ship-combat prototype with a
+    tick-driven simulation, per-tick replay UI, and Python-assisted balance iteration.
+  \item \textbf{Project Summon} (UE5, Blueprint/C++): team action RPG shipped on a fixed
+    10-week schedule; owned room progression, combat, inventory, and multiplayer
+    persistence systems.
+\end{itemize}
+
+% ── Paragraph 3: Role fit + what you bring (tailor to GP vs TD) ──────────────
+% GP version:
+I'm applying for the [ROLE TITLE] position. My background covers end-to-end runtime
+system ownership — from data schema design through spawning, hit detection, and
+optimization — alongside experience shipping under real schedule constraints. I'm
+comfortable working across Blueprint and C++, and I'm used to integrating with
+teammate-owned systems rather than working in isolation.
+
+% TD version (swap in if applying to a TD role):
+% I'm applying for the [ROLE TITLE] position. My background sits at the intersection of
+% gameplay engineering and systems design: I design data schemas that encode player-facing
+% intent, write the runtime code that executes them, and iterate on balance with tooling
+% I build myself. I'm most effective when design decisions need to be grounded in
+% implementation constraints, and vice versa.
+
+% ── Paragraph 4: Close ───────────────────────────────────────────────────────
+My full portfolio is at \href{https://misakarinowo.github.io/Portfolio}{misakarinowo.github.io/Portfolio}.
+I'd welcome the chance to talk about how my work fits what your team is building.
+
+Thank you for your time.
+
+Sincerely,\\[6pt]
+Ruilin (Peter) Xie
+
+\end{document}
