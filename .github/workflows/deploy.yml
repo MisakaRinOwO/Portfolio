@@ -18,11 +18,21 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     env:
-      PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+      PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID || secrets.PUBLIC_GA_MEASUREMENT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate GA env
+        run: |
+          if [ -z "$PUBLIC_GA_MEASUREMENT_ID" ]; then
+            echo "::warning::PUBLIC_GA_MEASUREMENT_ID is empty. GA script will not be injected."
+          else
+            echo "GA env detected (length: ${#PUBLIC_GA_MEASUREMENT_ID})."
+          fi
 
       - name: Set up Node
         uses: actions/setup-node@v4
