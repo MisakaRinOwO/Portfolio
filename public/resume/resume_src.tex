@@ -4,7 +4,7 @@
 %----------------------------------------------------------------------------------------
 \documentclass[letterpaper,10pt]{article}
 
-\usepackage[margin=0.65in]{geometry}
+\usepackage[margin=0.6in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{hyperref}
@@ -21,14 +21,14 @@
 
 % Section formatting
 \titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
-\titlespacing{\section}{0pt}{8pt}{4pt}
+\titlespacing{\section}{0pt}{7pt}{3pt}
 
 % No paragraph indent
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
 
 % Compact list
-\setlist[itemize]{leftmargin=1.2em, itemsep=1pt, parsep=0pt, topsep=2pt}
+\setlist[itemize]{leftmargin=1.2em, itemsep=0pt, parsep=0pt, topsep=1pt}
 
 %----------------------------------------------------------------------------------------
 \begin{document}
@@ -50,10 +50,9 @@
 
 \textbf{University of California, Irvine} \hfill Irvine, CA\\
 \textit{Master of Software Engineering} \hfill Sep 2024 -- Dec 2025\\
-Coursework: Data Structures/Algorithms, Distributed Software Architecture, Software Testing \& Debugging,\\
-Reverse Engineering \& Modeling, Concurrent/Network Programming
+Coursework: Data Structures/Algorithms, Distributed Architecture, Software Testing \& Debugging, Reverse Engineering, Concurrent/Network Programming
 
-\medskip
+\smallskip
 \textbf{University of California, Irvine}\\
 \textit{Bachelor of Arts, Business Economics} \hfill Jun 2018 -- Aug 2022
 
@@ -71,42 +70,49 @@ Reverse Engineering \& Modeling, Concurrent/Network Programming
 \textbf{CrossBolt --- Rhythm Game Prototype} \hfill Unity 2022, C\#, $|$ Team (4) $|$ 2025\\
 \href{https://github.com/MisakaRinOwO/Crossbolt-Code-Samples}{\texttt{github.com/MisakaRinOwO/Crossbolt-Code-Samples}}
 \begin{itemize}
-  \item Designed two-layer note schema (NoteType $\times$ NoteProperty) encoding gameplay intent into data and prefab routing; defined level-addressing convention (song ID / difficulty / chart.txt) consumed by runtime loader
-  \item Implemented full chart pipeline: custom .txt grammar $\rightarrow$ NoteLevelConverter $\rightarrow$ typed timestamp queue $\rightarrow$ ChartSpawner with type-aware prefab selection and NotesByTimeBuckets for O(1) per-frame hit lookup
-  \item Optimized judgement path on dedicated branch: O(N) active-list scan $\rightarrow$ O(P) pending-window checks + O(1) hold re-activation lookups
-  \item Built in-engine Beat Map Editor (Unity EditorWindow) with BPM-snap grid; autoplay mode validates charts through the same hit-detection path used at runtime
+  \item Designed data-driven note schema, chart addressing, and custom .txt grammar consumed by runtime loader and editor tooling
+  \item Implemented chart pipeline: NoteLevelConverter $\rightarrow$ typed timestamp queue $\rightarrow$ ChartSpawner with type-aware prefab selection and O(1) hit lookup
+  \item Built Unity Editor beat-map editor; optimized judgement branch from O(N) active-list scan to O(P) pending-window checks + O(1) hold lookups
 \end{itemize}
 
-\medskip
+\smallskip
+
+%-- Grid Systems --
+\textbf{Grid Systems Experiment --- UE5 C++ Gameplay Systems} \hfill UE5, C++, Blueprint $|$ Solo $|$ 2026\\
+\href{https://github.com/MisakaRinOwO/UE5-Grid-Experiment}{\texttt{github.com/MisakaRinOwO/UE5-Grid-Experiment}}
+\begin{itemize}
+  \item Built reusable \texttt{AGridManager} C++ core: \texttt{TArray}-based cells, world/grid conversion, cost-aware A*, movement-budget expansion, occupancy, and debug visualization
+  \item Separated native grid/pathfinding logic from scenario rules; Tactical, Weighted Terrain, and Tower Defense levels reuse the same core through Blueprint PlayerControllers
+  \item Implemented gameplay-facing validation flows: hover path-cost preview, Data Asset-driven unit movement/ability ranges, and obstacle rollback when Tower Defense routes are blocked
+\end{itemize}
+
+\smallskip
 
 %-- Void Architect --
 \textbf{Void Architect --- Modular Ship Combat Prototype} \hfill UE5, Blueprint, Python $|$ Solo $|$ 2026
 \begin{itemize}
-  \item Implemented tick-driven combat simulation: tracking vs.\ agility hit probability, per-weapon cooldown, shield$\rightarrow$HP overflow with replay event recording per tick
+  \item Implemented tick-driven combat simulation: tracking vs.\ agility hit probability, weapon cooldowns, shield$\rightarrow$HP overflow, and replay event recording
   \item Built equilateral-triangle placement grid with orientation-aware adjacency rules; data-driven module architecture via UE5 Data Assets with CPU/power budget constraints
-  \item Python log-parsing and run-aggregation scripts for balance regression; Discover$\rightarrow$Diagnose$\rightarrow$Fix$\rightarrow$Verify cycle identified Sniper shield outlier --- nerfed values and verified win-rate spread restored across full build matrix
-  \item Per-tick replay UI (timeline slider + HP/Shield curves + event log) serves as both player feedback and developer inspection tool
+  \item Python aggregation scripts identified Sniper shield outlier; nerfed values and verified win-rate spread across full build matrix with replay UI inspection
 \end{itemize}
 
-\medskip
+\smallskip
 
 %-- Project Summon --
 \textbf{Project Summon --- Action RPG Capstone} \hfill UE5, Blueprint, C++ $|$ Team (5) $|$ 2025
 \begin{itemize}
-  \item Shipped complete gameplay loop (hub $\rightarrow$ room combat $\rightarrow$ loot $\rightarrow$ return) on fixed 10-week schedule; owned room progression, combat, inventory, and multiplayer persistence systems
-  \item Built BP\_RoomManager as self-contained room authority: overlap-scoped enemy tracking, O(1) clear check, multi-spawner orchestration (enemy/chest/portal) on clear trigger
-  \item Implemented cross-level player data sync via GameInstance keyed by controller identity; diagnosed UE5 controller reassignment behavior before implementing persistence path
-  \item C++ integration: exposed enemy HP and TakeDamage (\texttt{UPROPERTY}/\texttt{UFUNCTION}) on teammate-authored code, merging into existing hit-detection path for consistent damage resolution
+  \item Shipped complete gameplay loop (hub $\rightarrow$ room combat $\rightarrow$ loot $\rightarrow$ return) on fixed 10-week schedule; owned room progression, combat, inventory, and persistence systems
+  \item Built BP\_RoomManager as room authority: overlap-scoped enemy tracking, O(1) clear check, and enemy/chest/portal spawning on clear trigger
+  \item Integrated teammate C++ enemy code by exposing HP/TakeDamage (\texttt{UPROPERTY}/\texttt{UFUNCTION}) and implemented GameInstance-based cross-level player data sync
 \end{itemize}
 
-\medskip
+\smallskip
 
 %-- Godot --
 \textbf{Godot Engine --- Open Source C++ Contributions} \hfill C++, Godot 4 $|$ 2025\\
 \href{https://github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}{\texttt{github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}}
 \begin{itemize}
-  \item PR \#107101 (CSGShapes3D): fixed broken hover-feedback by replacing faulty color-mask path with deterministic opacity model; PR \#107296 (3D Ruler): added axis-projected helper lines and contextual labels for 3D spatial readability
-  \item Both PRs passed CI and received maintainer review; two earlier test-coverage PRs (Sprite2D, AnimationBlendTree) also merged into master
+  \item PR \#107101 fixed CSGShapes3D hover feedback; PR \#107296 added 3D Ruler helper lines/labels; both passed CI and maintainer review
 \end{itemize}
 
 \end{document}
