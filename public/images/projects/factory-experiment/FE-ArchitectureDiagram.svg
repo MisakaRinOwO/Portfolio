@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Factory Experiment runtime architecture diagram</title>
+  <desc id="desc">Large readable diagram showing DataAssets and Blueprint UI feeding AFactoryManager, which owns grid placement, runtime data, fixed-step simulation, instanced visuals, and UI/debug queries.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111d"/>
+      <stop offset="0.58" stop-color="#081827"/>
+      <stop offset="1" stop-color="#05080c"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102b44"/>
+      <stop offset="1" stop-color="#0a1624"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12466e"/>
+      <stop offset="1" stop-color="#0b2034"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#67e8f9"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#4a9eff"/>
+    </marker>
+    <filter id="softGlow" x="-18%" y="-18%" width="136%" height="136%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.29 0 0 0 0 0.62 0 0 0 0 1 0 0 0 .32 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .page-title { font: 800 40px Orbitron, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: .04em; }
+      .page-subtitle { font: 500 22px "Space Grotesk", "Segoe UI", sans-serif; fill: rgba(255,255,255,.68); }
+      .panel-title { font: 800 28px Orbitron, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: .035em; }
+      .panel-copy { font: 600 24px "Space Grotesk", "Segoe UI", sans-serif; fill: rgba(255,255,255,.82); }
+      .panel-small { font: 500 21px "Space Grotesk", "Segoe UI", sans-serif; fill: rgba(255,255,255,.66); }
+      .chip-text { font: 700 20px "Space Grotesk", "Segoe UI", sans-serif; fill: #dff6ff; }
+      .tiny-label { font: 800 18px Orbitron, "Segoe UI", sans-serif; fill: #67e8f9; letter-spacing: .08em; }
+      .panel { fill: url(#panel); stroke: rgba(255,255,255,.16); stroke-width: 2; rx: 10; }
+      .core { fill: url(#core); stroke: rgba(103,232,249,.55); stroke-width: 2.6; rx: 10; filter: url(#softGlow); }
+      .chip { fill: rgba(255,255,255,.055); stroke: rgba(255,255,255,.15); stroke-width: 1.5; rx: 8; }
+      .data-chip { fill: rgba(74,158,255,.15); stroke: rgba(74,158,255,.48); stroke-width: 1.7; rx: 8; }
+      .visual-chip { fill: rgba(103,232,249,.12); stroke: rgba(103,232,249,.42); stroke-width: 1.7; rx: 8; }
+      .flow { stroke: #67e8f9; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .flow-blue { stroke: #4a9eff; stroke-width: 3.5; fill: none; marker-end: url(#arrowBlue); }
+      .flow-soft { stroke: rgba(103,232,249,.55); stroke-width: 2.7; fill: none; stroke-dasharray: 10 10; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g opacity=".13">
+    <path d="M0 150H1600M0 300H1600M0 450H1600M0 600H1600M0 750H1600" stroke="#ffffff" stroke-width="1"/>
+    <path d="M200 0V900M400 0V900M600 0V900M800 0V900M1000 0V900M1200 0V900M1400 0V900" stroke="#ffffff" stroke-width="1"/>
+  </g>
+
+  <text x="70" y="68" class="page-title">FACTORY EXPERIMENT ARCHITECTURE</text>
+  <text x="72" y="106" class="page-subtitle">Authoring data + player input feed one C++ runtime that owns simulation, visuals, and inspection.</text>
+
+  <!-- Left column -->
+  <rect x="70" y="170" width="340" height="260" class="panel"/>
+  <text x="100" y="220" class="panel-title">AUTHORING</text>
+  <rect x="100" y="250" width="280" height="46" class="data-chip"/>
+  <text x="122" y="281" class="chip-text">Buildable DataAssets</text>
+  <rect x="100" y="314" width="280" height="46" class="data-chip"/>
+  <text x="122" y="345" class="chip-text">Recipe + Resource Data</text>
+  <rect x="100" y="378" width="280" height="46" class="data-chip"/>
+  <text x="122" y="409" class="chip-text">Ports, Meshes, Stack Sizes</text>
+
+  <rect x="70" y="500" width="340" height="220" class="panel"/>
+  <text x="100" y="550" class="panel-title">PLAYER + UI</text>
+  <text x="100" y="595" class="panel-copy">PC_Factory</text>
+  <text x="100" y="628" class="panel-small">placement, selection, camera</text>
+  <text x="100" y="668" class="panel-copy">UMG Widgets</text>
+  <text x="100" y="701" class="panel-small">toolbar, guide, building info</text>
+
+  <!-- Core -->
+  <rect x="500" y="170" width="600" height="550" class="core"/>
+  <text x="545" y="225" class="panel-title">AFactoryManager</text>
+  <text x="545" y="264" class="panel-small">authoritative C++ gameplay runtime</text>
+
+  <rect x="545" y="310" width="245" height="76" class="chip"/>
+  <text x="570" y="342" class="chip-text">Grid + Placement</text>
+  <text x="570" y="372" class="panel-small">chunks, cells, footprints</text>
+
+  <rect x="810" y="310" width="245" height="76" class="chip"/>
+  <text x="835" y="342" class="chip-text">Placed Instances</text>
+  <text x="835" y="372" class="panel-small">BuildingId + WorldPorts</text>
+
+  <rect x="545" y="420" width="245" height="76" class="chip"/>
+  <text x="570" y="452" class="chip-text">Conveyors</text>
+  <text x="570" y="482" class="panel-small">coord-keyed segments</text>
+
+  <rect x="810" y="420" width="245" height="76" class="chip"/>
+  <text x="835" y="452" class="chip-text">Machines</text>
+  <text x="835" y="482" class="panel-small">input, internal, output</text>
+
+  <rect x="545" y="530" width="245" height="76" class="chip"/>
+  <text x="570" y="562" class="chip-text">Storage</text>
+  <text x="570" y="592" class="panel-small">slots + output ports</text>
+
+  <rect x="810" y="530" width="245" height="76" class="chip"/>
+  <text x="835" y="562" class="chip-text">Fixed-Step Sim</text>
+  <text x="835" y="592" class="panel-small">0.2s production tick</text>
+
+  <text x="545" y="635" class="tiny-label">RESOURCE FLOW</text>
+  <text x="545" y="666" class="panel-small">Miner internal storage -> conveyor / machine input</text>
+  <text x="545" y="698" class="panel-small">Recipe output -> conveyor / storage slots</text>
+
+  <!-- Right column -->
+  <rect x="1190" y="170" width="340" height="260" class="panel"/>
+  <text x="1220" y="220" class="panel-title">VISUALS</text>
+  <rect x="1220" y="250" width="280" height="46" class="visual-chip"/>
+  <text x="1242" y="281" class="chip-text">Blueprint Buildings</text>
+  <rect x="1220" y="314" width="280" height="46" class="visual-chip"/>
+  <text x="1242" y="345" class="chip-text">Conveyor HISM</text>
+  <rect x="1220" y="378" width="280" height="46" class="visual-chip"/>
+  <text x="1242" y="409" class="chip-text">Resource HISM Motion</text>
+
+  <rect x="1190" y="500" width="340" height="220" class="panel"/>
+  <text x="1220" y="550" class="panel-title">INSPECTION</text>
+  <text x="1220" y="595" class="panel-copy">Building Info Queries</text>
+  <text x="1220" y="628" class="panel-small">live data by BuildingId</text>
+  <text x="1220" y="668" class="panel-copy">Grid + Runtime Debug</text>
+  <text x="1220" y="701" class="panel-small">cells, chunks, machine state</text>
+
+  <!-- Connectors -->
+  <path d="M410 300 C450 300 462 300 500 300" class="flow"/>
+  <path d="M410 610 C455 610 462 635 500 635" class="flow-blue"/>
+  <path d="M1100 330 C1138 330 1150 310 1190 300" class="flow"/>
+  <path d="M1100 610 C1140 610 1150 620 1190 620" class="flow-blue"/>
+  <path d="M1360 500 C1360 455 1310 455 1100 455" class="flow-soft"/>
+</svg>
