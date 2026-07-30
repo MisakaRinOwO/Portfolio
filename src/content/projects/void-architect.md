@@ -23,7 +23,7 @@ links:
   video: "https://youtu.be/67x-hivfs2Y"
   demo: "https://drive.google.com/file/d/11oll_UAQ71cBDiUCH8mEpKpCXvlhJABr/view?usp=sharing"
   github: ""
-order: 2
+order: 3
 keyFeatures:
   - "Triangular Grid Placement"
   - "Tick Simulation"

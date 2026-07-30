@@ -1,6 +1,6 @@
 ---
 title: "Project Summon"
-featured: true
+featured: false
 draft: false
 tags: ["UE5", "Blueprint", "C++", "Local Multiplayer", "Action RPG"]
 role: "Gameplay Programmer (Team Systems)"
@@ -20,7 +20,7 @@ screenshots: []
 links:
   video: "https://www.youtube.com/watch?v=gYHEjQshulw"
   github: ""
-order: 3
+order: 4
 keyFeatures:
   - "Room Progression Orchestration"
   - "Deterministic Combat Runtime"

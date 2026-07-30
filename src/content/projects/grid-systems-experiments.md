@@ -19,7 +19,7 @@ coverImage: "/images/projects/grid-systems-experiments/GE-cover.png"
 screenshots: []
 links:
   github: "https://github.com/MisakaRinOwO/UE5-Grid-Experiment"
-order: 5
+order: 6
 keyFeatures:
   - "Reusable C++ Grid Core"
   - "A* Movement + Dijkstra Skill Range"

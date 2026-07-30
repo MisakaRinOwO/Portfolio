@@ -18,7 +18,7 @@ coverImage: "/brand/godot_icon_color.svg"
 screenshots: []
 links:
   github: "https://github.com/godotengine/godot/pulls?q=is%3Apr+author%3AMisakaRinOwO"
-order: 4
+order: 5
 keyFeatures:
   - "Large Codebase Navigation"
   - "C++ Editor Bug Fixing"

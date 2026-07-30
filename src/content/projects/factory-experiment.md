@@ -1,7 +1,7 @@
 ---
 title: "Factory Experiment — Data-Oriented Factory Simulation"
 featured: true
-draft: true
+draft: false
 tags: ["UE5", "C++", "Factory Sim", "Gameplay Systems", "Data Assets", "UMG"]
 role: "Solo Gameplay / Systems Programmer"
 stack: "Unreal Engine 5.6, C++, Blueprint, UMG, Enhanced Input, HISM"
@@ -14,12 +14,12 @@ highlights:
   - "Created a Data Asset authoring pipeline for buildings, runtime ports, recipes, resource maps, resource visuals, stack sizes, and storage."
   - "Made runtime state inspectable through machine/storage panels, layered debug overlays, and Blueprint-callable BuildingId queries."
 coverImage: "/images/projects/factory-experiment/FE-Cover.png"
-screenshots:
-  - "/images/projects/factory-experiment/FE-Cover.png"
+demoVideoFallback: "/images/projects/factory-experiment/FE-Demo.mp4"
+screenshots: []
 links:
   github: "https://github.com/MisakaRinOwO/UE5-Factory-Experiment"
   demo: "https://drive.google.com/file/d/1SetG34JeX46xBbpk4vSBNy7_8QWnEbJu/view?usp=sharing"
-order: 4
+order: 1
 keyFeatures:
   - "Chunked Grid Runtime"
   - "Data-Oriented Logistics"
@@ -57,9 +57,9 @@ The current playable loop turns one authored ore map into a complete first produ
 
 ## What I Built
 
-Factory Experiment is a solo UE5 C++ project. I built the chunked grid and placement model, conveyor logistics, miner/machine/storage runtime, fixed-step production flow, instanced visual paths, Blueprint query interfaces, and the supporting debug and building-information workflow.
+Factory Experiment is a solo UE5 C++ project. I built the chunked grid and placement model, conveyor logistics, miner/machine/storage runtime, fixed-step production flow, instanced conveyor and resource visuals, Blueprint query interfaces, and the supporting debug and building-information workflow.
 
-The project reuses the top-down control feel and grid-struct experience from earlier prototypes, but its chunk storage, factory runtime, logistics, production, storage, and debugging systems were developed for this standalone project.
+Building on earlier top-down control and grid-system experiments, this standalone project develops its own chunk storage, factory runtime, logistics, production, storage, and debugging systems.
 
 <div class="media-grid media-grid-2 ownership-system-grid">
 <div class="ownership-list ownership-list-primary ownership-system-card">
@@ -138,7 +138,7 @@ Factory state is divided by responsibility instead of being owned by one Actor t
 </div>
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">Conveyor</strong></p>
-<p><strong>Identity:</strong> grid coordinate<br /><strong>Runtime:</strong> FFactoryConveyorSegment<br /><strong>Presentation:</strong> conveyor HISM</p>
+<p><strong>Identity:</strong> grid coordinate<br /><strong>Runtime:</strong> <code>FFactoryConveyorSegment</code><br /><strong>Presentation:</strong> conveyor HISM</p>
 </div>
 <div class="ownership-list ownership-list-primary ownership-system-card">
 <p><strong class="ownership-kicker">Moving Resource</strong></p>
@@ -173,7 +173,7 @@ UpdateConveyors
 
 That step owns miner extraction, conveyor transfer, machine input delivery, recipe progress, output storage, and storage flushing. Per-frame `Tick` is reserved for mouse hover, placement preview, debug drawing, and smooth interpolation of moving resource meshes between their previous and current fixed-step coordinates.
 
-The ordering is deliberate: conveyors update before machines, so newly flushed machine/miner output remains visible for a full simulation interval rather than moving twice during the same step. The Gameplay Loop animation above shows the resulting resource flow: authoritative state advances on the fixed step while moving-resource visuals interpolate smoothly between coordinates.
+The ordering is deliberate: conveyors update before machines, so newly emitted machine or miner output remains visible for a full simulation interval rather than moving twice during the same step. The Gameplay Loop animation above shows the resulting resource flow: authoritative state advances on the fixed step while moving-resource visuals interpolate smoothly between coordinates.
 
 ### Data Asset Authoring and Runtime Ports
 
@@ -208,7 +208,7 @@ The resulting world ports carry coord, direction, input/output type, and accepte
 
 The project separates presentation UI from developer inspection:
 
-- Demo-facing UI: building toolbar, guide, tooltip, hover preview, and machine/storage information panels.
+- Player-facing UI: building toolbar, guide, tooltip, hover preview, and machine/storage information panels.
 - Developer UI: cell/chunk overlays plus conveyor, extractor, machine, and storage runtime text.
 
 Machine and storage widgets keep an `AFactoryManager` reference and `BuildingId`, then re-query authoritative runtime data through Blueprint-callable APIs. They do not keep a stale copied runtime struct as their long-term source of truth. `PC_Factory` stores the one active panel through the shared `UFactoryBuildingInfoWidget` parent type.

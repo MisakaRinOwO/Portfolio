@@ -19,7 +19,7 @@ demoVideoFallback: "/images/projects/crossbolt/CB-AutoplayDemo.mp4"
 screenshots: []
 links:
   github: "https://github.com/MisakaRinOwO/Crossbolt-Code-Samples"
-order: 1
+order: 2
 keyFeatures:
   - "Custom Chart Pipeline"
   - "6-Type Note Architecture"

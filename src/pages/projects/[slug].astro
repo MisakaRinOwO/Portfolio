@@ -154,10 +154,12 @@ const toYoutubeEmbedUrl = (url: string) => {
                 ></iframe>
                 {d.demoVideoFallback && (
                   <video
-                    class="hidden h-full w-full"
+                    class="hidden h-full w-full object-contain"
                     controls
                     preload="metadata"
                     playsinline
+                    poster={d.coverImage.startsWith('/') ? `${base}${d.coverImage}` : d.coverImage}
+                    aria-label={`${d.title} demo video`}
                     data-demo-fallback
                   >
                     <source
@@ -196,14 +198,16 @@ const toYoutubeEmbedUrl = (url: string) => {
           ) : d.demoVideoFallback && !d.demoVideo ? (
             <div data-demo-video-block class="space-y-3">
               <div class="aspect-video w-full overflow-hidden border border-white/10 bg-black" data-demo-media>
-                <video
-                  class="h-full w-full"
-                  controls
-                  playsinline
-                  preload="metadata"
-                  data-demo-fallback
-                  data-default-volume="0.3"
-                >
+                  <video
+                    class="h-full w-full object-contain"
+                    controls
+                    playsinline
+                    preload="metadata"
+                    poster={d.coverImage.startsWith('/') ? `${base}${d.coverImage}` : d.coverImage}
+                    aria-label={`${d.title} demo video`}
+                    data-demo-fallback
+                    data-default-volume="0.3"
+                  >
                   <source
                     src={d.demoVideoFallback.startsWith('/') ? `${base}${d.demoVideoFallback}` : d.demoVideoFallback}
                     type="video/mp4"
