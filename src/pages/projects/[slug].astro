@@ -1490,7 +1490,7 @@ const toYoutubeEmbedUrl = (url: string) => {
       const viewport = carousel.querySelector<HTMLElement>('.va-grid-carousel-viewport');
 
       const autoMsRaw = Number(carousel.dataset.autoMs);
-      const autoMs = Number.isFinite(autoMsRaw) && autoMsRaw > 0 ? autoMsRaw : 5000;
+      const autoMs = Number.isFinite(autoMsRaw) && autoMsRaw >= 0 ? autoMsRaw : 5000;
 
       if (slides.length <= 1) {
         prevBtn?.setAttribute('hidden', 'true');
@@ -1559,6 +1559,7 @@ const toYoutubeEmbedUrl = (url: string) => {
       };
 
       const restartAutoplay = () => {
+        if (autoMs === 0) return;
         if (isLightboxOpen()) return;
         // Do not restart while user is still interacting with the carousel,
         // including when hovering/focusing nav buttons.

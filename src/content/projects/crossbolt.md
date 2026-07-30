@@ -6,13 +6,13 @@ tags: ["Unity", "C#", "Rhythm", "Systems", "Tools"]
 role: "Gameplay Programmer / Technical Designer (Team)"
 stack: "Unity 2022, C#, Unity Input System"
 year: "2025"
-summary: "A team rhythm game prototype in Unity featuring a dual-orb 6-track note highway, a custom chart pipeline, and an in-engine beat map editor. I led note/grammar design and owned the runtime path from chart parsing to note spawning, including a branch-level judgement complexity optimization."
+summary: "A team rhythm game prototype in Unity featuring a dual-orb 6-track note highway, a custom chart pipeline, and an in-engine beat map editor. I led note/grammar design and owned the runtime path from chart parsing to note spawning, including a judgement complexity optimization now integrated into main."
 highlights:
   - "Custom chart pipeline: .txt chart grammar parsed by NoteLevelConverter into runtime timestamp queues with typed validation errors"
   - "Designed a two-layer note schema (NoteType + NoteProperty) to map gameplay intent directly into data and prefab behavior"
   - "Procedural hold body geometry via HoldMesh.cs: body length scales at runtime rather than stretching sprites"
   - "ChartSpawner runtime path: TimestampNoteContainer queue consumption plus NotesByTimeBuckets for bounded hit-lookup cost"
-  - "Judgement-path optimization branch: O(N) active-list scan -> O(P) pending-window checks + O(1) hold re-activation lookup"
+  - "Judgement-path optimization in main: O(N) active-list scan -> O(P) pending-window checks + O(1) hold re-activation lookup"
   - "In-engine beat map editor: BPM-snap grid, note placement, and .txt chart file authoring"
 coverImage: "/images/projects/crossbolt/CB-Cover.png"
 demoVideoFallback: "/images/projects/crossbolt/CB-AutoplayDemo.mp4"
@@ -57,7 +57,7 @@ Note types span Tap, Flick, Flux, Hold variants, and Chain — each requiring di
 
 ## What I Owned
 
-I owned the chart data pipeline, note type architecture, chart spawning path, branch-level judgement optimization, and beat map editor — the systems that define how charts are authored, loaded, represented, and instantiated at runtime.
+I owned the chart data pipeline, note type architecture, chart spawning path, judgement-path optimization, and beat map editor — the systems that define how charts are authored, loaded, represented, and instantiated at runtime.
 
 Contribution evidence in team context: 66 / 197 commits were authored by me, concentrated in chart parsing, note architecture, runtime spawning, and editor tooling paths.
 
@@ -78,8 +78,8 @@ Contribution evidence in team context: 66 / 197 commits were authored by me, con
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
-<p><strong class="ownership-kicker">System</strong>: Judgement Path Optimization (Branch)</p>
-<p>On <code>Process-Hit-Optimization</code>, I led a branch-level refactor that shifted judgement from O(N) active-list scans to O(P) pending-window checks plus O(1) hold lookups.</p>
+<p><strong class="ownership-kicker">System</strong>: Judgement Path Optimization</p>
+<p>I led the refactor, now merged into <code>main</code>, that shifted judgement from O(N) active-list scans to O(P) pending-window checks plus O(1) hold lookups.</p>
 </div>
 
 <div class="ownership-list ownership-list-primary ownership-system-card">
@@ -88,7 +88,7 @@ Contribution evidence in team context: 66 / 197 commits were authored by me, con
 </div>
 </div>
 
-I did not solely own baseline scoring formulas, judgement-window constants, or input action binding (teammate-owned); orb movement and animation; audio integration or music; or visual art and shader design. I did collaborate on judgement/scoring integration points and later led the dedicated judgement complexity optimization branch.
+I did not solely own baseline scoring formulas, judgement-window constants, or input action binding (teammate-owned); orb movement and animation; audio integration or music; or visual art and shader design. I did collaborate on judgement/scoring integration points and later led the judgement complexity optimization now integrated into the main runtime.
 
 ## Core Systems
 
@@ -207,16 +207,16 @@ Key spawning behaviors:
 
 To validate charts without manual play-through, an **autoplay mode** was implemented in `LevelController`. It reads the same `NotesByTimeBuckets` structure as the normal runtime path and simulates player inputs automatically at note target times, triggering the same `ProcessHit` / `ReleaseHold` path as real input. This lets a chart be verified visually end-to-end — confirming spawn positions, hold body alignment, and scoring output — and produces the autoplay footage used as the project demo.
 
-#### Judgement Path Optimization (Branch)
+#### Judgement Path Optimization
 
-Implemented on [`Process-Hit-Optimization` branch](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/tree/process-hit-optimization) ([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/process-hit-optimization/Game/Level/LevelController.cs)):
+Implemented and merged into [`main`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples) ([`LevelController.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Level/LevelController.cs)):
 - Replaced full-list per-input filtering with a `pendingNotesList` sliding window over `allNotesQueue` in `[currentTime - Good, currentTime + Good]`.
 - `PopulatePendingNotesList()` only processes notes entering/leaving the timing window (amortized O(K), where K is window churn per frame) instead of rescanning all active notes.
 - `ProcessHit()` iterates only the pending window (O(P), where P is notes currently in the judgement window, typically small) and removes matched notes immediately.
 - Replaced hold re-activation `FirstOrDefault` scans with O(1) track references (`pendingHoldRed`, `pendingHoldBlue`, `pendingHoldFlux`).
 - Unified chain/miss handling into the same pending pipeline (`ProcessMiss` + pending-window expiry), reducing duplicated code paths and edge-case drift.
 
-This branch-level optimization was completed and tested as a standalone runtime pipeline change, but not merged back into the final prototype branch before content lock.
+The optimization was completed, tested, and merged into `main`, where it is now part of the primary runtime pipeline.
 
 ### Beat Map Editor
 <span class="section-code-link">([`ChartManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/ChartManager.cs) · [`EditorUIManager.cs`](https://github.com/MisakaRinOwO/Crossbolt-Code-Samples/blob/main/Game/Chartting/EditorUIManager.cs))</span>
@@ -239,7 +239,7 @@ Current state: BPM-snap grid with configurable division, bar line add/remove, ta
 - **Beat-context system**: BPM `(120)` and division `{4}` persist as context tokens rather than stamping every note with an absolute timestamp — keeps the file readable and supports mid-chart tempo changes without inflating entry size.
 - **Two output representations from one parse pass**: `NoteLevelConverter` produces both the runtime `Queue<TimestampNoteContainer>` and the editor `List<FixNoteLengthWrapper>` in one pass, avoiding a second parser or format drift between tools and gameplay.
 - **Procedural hold body geometry**: sprite-stretching distorts at high scroll speeds. `HoldMesh.cs` generates mesh vertices at spawn time from duration × scroll speed, keeping body length accurate regardless of frame rate.
-- **Deliberate presentation/judgement decoupling**: chart note visuals and judgement logic are separated — no collider-based hit detection. This reduces runtime complexity and keeps judgement flow auditable. The same goal of stable player-facing timing drove the `Process-Hit-Optimization` branch (pending-window queue, O(1) hold re-activation) — the driver was edge-case consistency in dense sections, not raw performance. Trade-off: heavier debugging overhead and startup timing offset sensitivity. Mitigated by coroutine-gated audio preloading and `PlayScheduled` DSP-time synchronization.
+- **Deliberate presentation/judgement decoupling**: chart note visuals and judgement logic are separated — no collider-based hit detection. This reduces runtime complexity and keeps judgement flow auditable. The same goal of stable player-facing timing drove the judgement-path optimization now in `main` (pending-window queue, O(1) hold re-activation) — the driver was edge-case consistency in dense sections, not raw performance. Trade-off: heavier debugging overhead and startup timing offset sensitivity. Mitigated by coroutine-gated audio preloading and `PlayScheduled` DSP-time synchronization.
 - **Orb-position-based hit resolution**: `GetInputTrack` always returns the orb's live lane. Chart authors can route notes around orb position; both inputs are valid on converged lanes. Reading difficulty and execution difficulty are intentionally decoupled.
 - **NotesByTimeBuckets**: bucketing active notes by timestamp quantizes per-frame hit lookup to a small DSP-time window, bounding lookup cost as chart density grows.
 
@@ -256,7 +256,7 @@ Current state: BPM-snap grid with configurable division, bar line add/remove, ta
 - **Design-to-data translation**: gameplay intent (Burst vs Extra, Flux vs lane-bound notes) is encoded as explicit schema decisions (`NoteType`, `NoteProperty`) rather than hardcoded one-off behaviors.
 - **Authoring-to-runtime continuity**: one chart grammar drives both authoring output and runtime spawning input, reducing format drift between tools and gameplay.
 - **Performance-aware runtime shaping**: queue-ordered spawn flow and time-bucketed lookup avoid frame-time spikes from full-list scans.
-- **Algorithmic iteration beyond shipped branch**: the separate `Process-Hit-Optimization` branch demonstrates deeper runtime work — sliding-window pending queues and O(1) hold re-activation lookups for judgement-path complexity control tied to player-facing timing consistency.
+- **Algorithmic iteration integrated into the primary runtime**: the judgement-path refactor in `main` demonstrates deeper runtime work — sliding-window pending queues and O(1) hold re-activation lookups for complexity control tied to player-facing timing consistency.
 - **Engineering synchronization proof under runtime constraints**: startup offset fixes were handled through coroutine-based load-state gating and DSP-timed playback scheduling (`PlayScheduled`) to coordinate asynchronous audio readiness with gameplay timing expectations.
 - **Scope and boundary discipline**: teammate-owned systems are explicitly separated, while unfinished editor integrations are documented as next-step work rather than overstated as shipped.
 
@@ -277,4 +277,4 @@ What this project demonstrates alongside the systems work: design judgment under
 - Complete end-to-end variable BPM/time-signature workflow coverage (parser, editor authoring UX, and runtime validation).
 - Add chart validation tooling (per-note visual preview, timing gap detection) to close the author-test loop.
 - Evaluate whether `ChartSpawner` prefab routing should move to a data-asset-driven registry (similar to VA's `DA_` module pattern) to support note skin variants without code changes.
-- Port and benchmark the `Process-Hit-Optimization` branch changes into the latest mainline runtime, then validate judgement parity with replay-based regression charts.
+- Add replay-based regression charts and performance benchmarks for the optimized judgement path in `main`.

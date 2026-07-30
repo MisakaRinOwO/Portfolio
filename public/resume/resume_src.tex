@@ -72,18 +72,18 @@ Coursework: Data Structures/Algorithms, Distributed Architecture, Software Testi
 \begin{itemize}
   \item Designed data-driven note schema, chart addressing, and custom .txt grammar consumed by runtime loader and editor tooling
   \item Implemented chart pipeline: NoteLevelConverter $\rightarrow$ typed timestamp queue $\rightarrow$ ChartSpawner with type-aware prefab selection and O(1) hit lookup
-  \item Built Unity Editor beat-map editor; optimized judgement branch from O(N) active-list scan to O(P) pending-window checks + O(1) hold lookups
+  \item Built Unity Editor beat-map editor; optimized the main judgement path from O(N) active-list scan to O(P) pending-window checks + O(1) hold lookups
 \end{itemize}
 
 \smallskip
 
-%-- Grid Systems --
-\textbf{Grid Systems Experiment --- UE5 C++ Gameplay Systems} \hfill UE5, C++, Blueprint $|$ Solo $|$ 2026\\
-\href{https://github.com/MisakaRinOwO/UE5-Grid-Experiment}{\texttt{github.com/MisakaRinOwO/UE5-Grid-Experiment}}
+%-- Factory Experiment --
+\textbf{Factory Experiment --- Data-Oriented Factory Simulation} \hfill UE5.6, C++, Blueprint $|$ Solo $|$ 2026\\
+\href{https://github.com/MisakaRinOwO/UE5-Factory-Experiment}{\texttt{github.com/MisakaRinOwO/UE5-Factory-Experiment}}
 \begin{itemize}
-  \item Built reusable \texttt{AGridManager} C++ core: \texttt{TArray}-based cells, world/grid conversion, cost-aware A*, movement-budget expansion, occupancy, and debug visualization
-  \item Separated native grid/pathfinding logic from scenario rules; Tactical, Weighted Terrain, and Tower Defense levels reuse the same core through Blueprint PlayerControllers
-  \item Implemented gameplay-facing validation flows: hover path-cost preview, Data Asset-driven unit movement/ability ranges, and obstacle rollback when Tower Defense routes are blocked
+  \item Built sparse chunked world storage with dense 32$\times$32 cell arrays, negative-coordinate support, rotated footprints, occupancy validation, and read/write access separation
+  \item Implemented coord-keyed conveyor logistics and HISM presentation without Actor-per-segment simulation; snapshot/planning transfers prevent traversal-order conflicts
+  \item Developed a fixed-step Miner$\rightarrow$Conveyor$\rightarrow$Smelter$\rightarrow$Storage loop, with Data Asset-authored buildings, recipes, resources, runtime ports, and live UMG inspection
 \end{itemize}
 
 \smallskip
