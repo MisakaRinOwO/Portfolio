@@ -108,11 +108,12 @@ Coursework: Data Structures/Algorithms, Distributed Architecture, Software Testi
 
 \smallskip
 
-%-- Godot --
-\textbf{Godot Engine --- Open Source C++ Contributions} \hfill C++, Godot 4 $|$ 2025\\
-\href{https://github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}{\texttt{github.com/godotengine/godot/pulls?q=is\%3Apr+author\%3AMisakaRinOwO}}
+%-- Grid Systems --
+\textbf{Grid Systems Experiment --- Reusable Gameplay Framework} \hfill UE5, C++, Blueprint $|$ Solo $|$ 2026\\
+\href{https://github.com/MisakaRinOwO/UE5-Grid-Experiment}{\texttt{github.com/MisakaRinOwO/UE5-Grid-Experiment}}
 \begin{itemize}
-  \item PR \#107101 fixed CSGShapes3D hover feedback; PR \#107296 added 3D Ruler helper lines/labels; both passed CI and maintainer review
+  \item Built a reusable C++ grid core with contiguous \texttt{TArray} storage, occupancy, cost-aware A*, movement-budget queries, and unweighted Dijkstra ability ranges
+  \item Reused one \texttt{AGridManager} across Tactical, Weighted Terrain, and Tower Defense scenarios; added path-cost previews and atomic rollback when obstacle placement blocks all routes
 \end{itemize}
 
 \end{document}
